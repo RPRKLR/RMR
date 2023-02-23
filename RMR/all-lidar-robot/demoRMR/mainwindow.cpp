@@ -314,3 +314,63 @@ void MainWindow::goRotate()
     {
     }
 }
+
+double MainWindow::calculateEuclidDistance(Point2d point1, Point2d point2)
+{
+    // Calculating Euclid distance between two points
+    return sqrt(pow(point2.x - point1.x, 2) + pow(point2.y - point1.y, 2));
+}
+Point2d MainWindow::selectDirection(Point2d starting_point, Point2d goal_point, Point2d left_point, Point2d right_point)
+{
+    // Calculate the euclid distance from the start point to the left obstacle corner, and from the left obstacle corner to the goal point
+    double distance1 = calculateEuclidDistance(starting_point, left_point) + calculateEuclidDistance(left_point, goal_point);
+    // Same just with the right obstacle corner
+    double distance2 = calculateEuclidDistance(starting_point, right_point) + calculateEuclidDistance(right_point, goal_point);
+
+    if (distance1 < distance2)
+    {
+        left_point.distance = distance1;
+        return left_point;
+    }
+    else
+    {
+        right_point.distance = distance2;
+        return right_point;
+    }
+}
+std::shared_ptr<Point2d> MainWindow::findObstacleEnd(int x, int y, std::shared_ptr<std::shared_ptr<int>> map, int dimension, int direction)
+{
+    int i = y;
+    if (direction == 1) // checking to the right
+    {
+        while (map[row][i] == 1)
+        {
+            i++;
+            if (i > dimension)
+            {
+                return NULL;
+            }
+        }
+    }
+    else if (direction == -1)
+    {
+        whiel(map[row][i] == 1)
+        {
+            i--;
+            if (i < 0)
+            {
+                return NULL;
+            }
+        }
+    }
+    std::shared_ptr<Point2d> point = std::make_shared<Point2d>();
+    point->y = i;
+    point->x = x;
+    return point;
+}
+std::shared_ptr<std::shared_ptr<Point2d>> MainWindow::checkColision(Point2d start_point, std::shared_ptr<std::shared_ptr<int>> map, int dimension, int range)
+{
+}
+void MainWindow::task2()
+{
+}
