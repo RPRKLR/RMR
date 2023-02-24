@@ -370,6 +370,23 @@ std::shared_ptr<Point2d> MainWindow::findObstacleEnd(int x, int y, std::shared_p
 }
 std::shared_ptr<std::shared_ptr<Point2d>> MainWindow::checkColision(Point2d start_point, std::shared_ptr<std::shared_ptr<int>> map, int dimension, int range)
 {
+    int x = start_point.x + range;
+    int y = start_point.y;
+    if (x < dimension && map[x][y] == 1)
+    {
+        std::cout << "Colision in front of the robot. Finding end of the obstacle\n";
+        std::shared_ptr<Point2d> point1 findObstacleEnd(x, y, map, dimension, -1);
+        std::shared_ptr<Point2d> point2 fintObstacleEnd(x, y, map, dimension, 1);
+        std::shared_ptr<std::shared_ptr<Point2d>> array = std::make_shared<std::make_shared<Point2d>>()[2];
+        array[0] = point1;
+        array[1] = point2;
+        return array;
+    }
+    else
+    {
+        std::cout << "No colision was detected";
+        return NULL;
+    }
 }
 void MainWindow::task2()
 {
