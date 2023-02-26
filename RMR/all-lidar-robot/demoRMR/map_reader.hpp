@@ -2,6 +2,9 @@
 #define MAP_READER_HPP
 #include <vector>
 #include <memory>
+#include <string>
+#include <iostream>
+#include <fstream>
 
 typedef struct
 {
@@ -33,7 +36,8 @@ class MapReader
 {
 public:
     MapReader();
-    void readMap(std::shared_ptr<char> filename, MapArea &maps);
+    ~MapReader();
+    void readMap(std::string filename, MapArea &maps);
 };
 
 #endif // MAP_READER_HPP
