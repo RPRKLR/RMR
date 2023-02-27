@@ -36,7 +36,7 @@ public:
 
 
     //default functions.. please do not rewrite.. make your own callback
-    static  std::function<int(TKobukiData)> do_nothing_robot;
+    static std::function<int(TKobukiData)> do_nothing_robot;
     static std::function<int(LaserMeasurement)> do_nothing_laser;
 
 

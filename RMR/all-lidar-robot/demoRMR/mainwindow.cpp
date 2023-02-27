@@ -2,7 +2,8 @@
 #include "ui_mainwindow.h"
 #include <QPainter>
 #include <math.h>
-#define map [500][500];
+
+// #define created_map[500][500];
 /// TOTO JE DEMO PROGRAM...AK SI HO NASIEL NA PC V LABAKU NEPREPISUJ NIC,ALE SKOPIRUJ SI MA NIEKAM DO INEHO FOLDERA
 ///  AK HO MAS Z GITU A ROBIS NA LABAKOVOM PC, TAK SI HO VLOZ DO FOLDERA KTORY JE JASNE ODLISITELNY OD TVOJICH KOLEGOV
 ///  NASLEDNE V POLOZKE Projects SKONTROLUJ CI JE VYPNUTY shadow build...
@@ -102,6 +103,8 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
 
     /// TU PISTE KOD... TOTO JE TO MIESTO KED NEVIETE KDE ZACAT,TAK JE TO NAOZAJ TU. AK AJ TAK NEVIETE, SPYTAJTE SA CVICIACEHO MA TU NATO STRING KTORY DA DO HLADANIA XXX
 
+    CKobuki kobuki;
+
     if (datacounter == 0)
     {
         old_left_encounter = robotdata.EncoderLeft;
@@ -110,10 +113,10 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
     diff_in_left_encounter = robotdata.EncoderLeft - old_left_encounter;
     diff_in_right_encounter = robotdata.EncoderRight - old_right_encounter;
 
-    left_wheel_distance = robot.getTickToMeter() * diff_in_left_encounter;
-    right_wheel_distance = robot.getTickToMeter() * diff_in_right_encounter;
+    left_wheel_distance = kobuki.tickToMeter * diff_in_left_encounter;
+    right_wheel_distance = kobuki.tickToMeter * diff_in_right_encounter;
 
-    current_angle += (right_wheel_distance - left_wheel_distance) / robot.getWheelbase();
+    current_angle += (right_wheel_distance - left_wheel_distance) / kobuki.b;
     if (current_angle > 2 * PI)
         current_angle -= 2 * PI;
     if (current_angle < 0)
@@ -154,7 +157,7 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
             {
                 if (distance_from_goal > 0.1)
                     regulateSpeed(distance_from_goal);
-                goTranslate()
+                goTranslate();
             }
         }
     }
@@ -190,25 +193,25 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
     //  ale nic vypoctovo narocne - to iste vlakno ktore cita data z lidaru
     if (rotation_speed == 0)
     {
-        for (int i = 0; i < copyOfLaserData.numberOfScans; ++k)
+        for (int i = 0; i < copyOfLaserData.numberOfScans; ++i)
         {
             if (copyOfLaserData.Data[i].scanDistance > 145)
             {
                 double scan_distance = copyOfLaserData.Data[i].scanDistance / 1000;
                 int point_y = -(current_y + scan_distance * sin((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
                 int point_x = (current_x + scan_distance * cos((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
-                map[point_x][point_y] = 1;
+                //                created_map[point_x][point_y] = 1;
             }
         }
         FILE *file;
         file = fopen("map.txt", "w");
         for (int x = 0; x < 500; ++x)
         {
-            for (y = 0; y < 500; ++y)
+            for (int y = 0; y < 500; ++y)
             {
-                fprintf(file, "%d", map[x][y]);
+                //                fprintf(file, "%d", created_map[x][y]);
             }
-            fprintf(file, "%d\n", map[x][y]);
+            //            fprintf(file, "%d\n", created_map[x][y]);
         }
         fclose(file);
     }
@@ -301,93 +304,88 @@ double MainWindow::regulateRotation(double error_angle)
 
 void MainWindow::goTranslate()
 {
-    std::vector<unsigned char> message = robor.setTranslationSPeed(speed);
-    if (sendto(rob_s, (char *)message.data(), sizeof(char) * message.size(), 0, (struct sockaddr *)&rob_si_polsi, rob_slen) == -1)
-    {
-    }
+    robot.setTranslationSpeed(speed);
 }
 
 void MainWindow::goRotate()
 {
-    std::vector<unsigned char> message = robot.setRotationSpeed(rotation_speed);
-    if (sendto(rob_s, (char *)message.data(), sizeof(char) * message.size(), 0, (struct sockaddr *)&rob_si_polsi, rob_slen) == -1)
-    {
-    }
+    robot.setRotationSpeed(speed);
 }
 
-double MainWindow::calculateEuclidDistance(Point2d point1, Point2d point2)
-{
-    // Calculating Euclid distance between two points
-    return sqrt(pow(point2.x - point1.x, 2) + pow(point2.y - point1.y, 2));
-}
-Point2d MainWindow::selectDirection(Point2d starting_point, Point2d goal_point, Point2d left_point, Point2d right_point)
-{
-    // Calculate the euclid distance from the start point to the left obstacle corner, and from the left obstacle corner to the goal point
-    double distance1 = calculateEuclidDistance(starting_point, left_point) + calculateEuclidDistance(left_point, goal_point);
-    // Same just with the right obstacle corner
-    double distance2 = calculateEuclidDistance(starting_point, right_point) + calculateEuclidDistance(right_point, goal_point);
+// double MainWindow::calculateEuclidDistance(Point2d point1, Point2d point2)
+//{
+//     // Calculating Euclid distance between two points
+//     return sqrt(pow(point2.x - point1.x, 2) + pow(point2.y - point1.y, 2));
+// }
+// Point2d MainWindow::selectDirection(Point2d starting_point, Point2d goal_point, Point2d left_point, Point2d right_point)
+//{
+//     // Calculate the euclid distance from the start point to the left obstacle corner, and from the left obstacle corner to the goal point
+//     double distance1 = calculateEuclidDistance(starting_point, left_point) + calculateEuclidDistance(left_point, goal_point);
+//     // Same just with the right obstacle corner
+//     double distance2 = calculateEuclidDistance(starting_point, right_point) + calculateEuclidDistance(right_point, goal_point);
 
-    if (distance1 < distance2)
-    {
-        left_point.distance = distance1;
-        return left_point;
-    }
-    else
-    {
-        right_point.distance = distance2;
-        return right_point;
-    }
-}
-std::shared_ptr<Point2d> MainWindow::findObstacleEnd(int x, int y, std::shared_ptr<std::shared_ptr<int>> map, int dimension, int direction)
-{
-    int i = y;
-    if (direction == 1) // checking to the right
-    {
-        while (map[row][i] == 1)
-        {
-            i++;
-            if (i > dimension)
-            {
-                return NULL;
-            }
-        }
-    }
-    else if (direction == -1)
-    {
-        whiel(map[row][i] == 1)
-        {
-            i--;
-            if (i < 0)
-            {
-                return NULL;
-            }
-        }
-    }
-    std::shared_ptr<Point2d> point = std::make_shared<Point2d>();
-    point->y = i;
-    point->x = x;
-    return point;
-}
-std::shared_ptr<std::shared_ptr<Point2d>> MainWindow::checkColision(Point2d start_point, std::shared_ptr<std::shared_ptr<int>> map, int dimension, int range)
-{
-    int x = start_point.x + range;
-    int y = start_point.y;
-    if (x < dimension && map[x][y] == 1)
-    {
-        std::cout << "Colision in front of the robot. Finding end of the obstacle\n";
-        std::shared_ptr<Point2d> point1 findObstacleEnd(x, y, map, dimension, -1);
-        std::shared_ptr<Point2d> point2 fintObstacleEnd(x, y, map, dimension, 1);
-        std::shared_ptr<std::shared_ptr<Point2d>> array = std::make_shared<std::make_shared<Point2d>>()[2];
-        array[0] = point1;
-        array[1] = point2;
-        return array;
-    }
-    else
-    {
-        std::cout << "No colision was detected";
-        return NULL;
-    }
-}
-void MainWindow::task2()
-{
-}
+//    if (distance1 < distance2)
+//    {
+//        left_point.distance = distance1;
+//        return left_point;
+//    }
+//    else
+//    {
+//        right_point.distance = distance2;
+//        return right_point;
+//    }
+//}
+// std::shared_ptr<Point2d> MainWindow::findObstacleEnd(int x, int y, std::shared_ptr<std::shared_ptr<int>> map, int dimension, int direction)
+//{
+//    int i = y;
+//    if (direction == 1) // checking to the right
+//    {
+//        while (map[x][i] == 1)
+//        {
+//            i++;
+//            if (i > dimension)
+//            {
+//                return NULL;
+//            }
+//        }
+//    }
+//    else if (direction == -1)
+//    {
+//        while(map[x][i] == 1)
+//        {
+//            i--;
+//            if (i < 0)
+//            {
+//                return NULL;
+//            }
+//        }
+//    }
+//    std::shared_ptr<Point2d> point = std::make_shared<Point2d>();
+//    point->y = i;
+//    point->x = x;
+//    return point;
+//}
+// std::shared_ptr<std::shared_ptr<Point2d>> MainWindow::checkColision(Point2d start_point, std::shared_ptr<std::shared_ptr<int>> map, int dimension, int range)
+//{
+//    int x = start_point.x + range;
+//    int y = start_point.y;
+//    if (x < dimension && map[x][y] == 1)
+//    {
+//        std::cout << "Colision in front of the robot. Finding end of the obstacle\n";
+//        std::shared_ptr<Point2d> point1 findObstacleEnd(x, y, map, dimension, -1);
+//        std::shared_ptr<Point2d> point2 fintObstacleEnd(x, y, map, dimension, 1);
+//        std::shared_ptr<std::shared_ptr<Point2d>> array = std::make_shared<std::make_shared<Point2d>>()[2];
+//        array[0] = point1;
+//        array[1] = point2;
+//        return array;
+//    }
+//    else
+//    {
+//        std::cout << "No colision was detected";
+//        return NULL;
+//    }
+//}
+// void MainWindow::task2()
+//{
+
+//}

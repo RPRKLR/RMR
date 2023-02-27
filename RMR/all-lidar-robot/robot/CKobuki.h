@@ -141,14 +141,7 @@ public:
     int fillData(TKobukiData &output, unsigned char *message)
     {
         return parseKobukiMessage(output, message);
-    }
-
-private:
-    int parseKobukiMessage(TKobukiData &output, unsigned char *data);
-
-    int checkChecksum(unsigned char *data);
-
-    long double getTickToMeter()
+    }    long double getTickToMeter()
     {
         return tickToMeter;
     }
@@ -157,12 +150,20 @@ private:
     {
         return b;
     }
-
-    //--spustenie merania v novom vlakne (vycitavanie bezi v novom vlakne. treba ho stopnut ak chceme poslat request)
-
     long double tickToMeter = 0.000085292090497737556558; // [m/tick]
     long double b = 0.23;                                 // wheelbase distance in meters, from kobuki manual https://yujinrobot.github.io/kobuki/doxygen/enAppendixProtocolSpecification.html
     //
+
+
+private:
+    int parseKobukiMessage(TKobukiData &output, unsigned char *data);
+
+    int checkChecksum(unsigned char *data);
+
+
+    //--spustenie merania v novom vlakne (vycitavanie bezi v novom vlakne. treba ho stopnut ak chceme poslat request)
+
+
 };
 
 #endif

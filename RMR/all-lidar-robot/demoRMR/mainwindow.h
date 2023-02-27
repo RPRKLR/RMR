@@ -26,6 +26,13 @@ namespace Ui
     class MainWindow;
 }
 
+typedef struct
+{
+    double x;
+    double y;
+    double distance;
+} Point2d;
+
 /// toto je trieda s oknom.. ktora sa spusti ked sa spusti aplikacia.. su tu vsetky gombiky a spustania...
 class MainWindow : public QMainWindow
 {
@@ -49,6 +56,9 @@ public:
     void goRotate();
     void robotprocess();
     void laserprocess();
+    double regulateSpeed(double error_distance);
+    double regulateRotation(double error_angle);
+
 
 private slots:
     void on_pushButton_9_clicked();
@@ -67,11 +77,13 @@ private slots:
 
     void getNewFrame();
 
-    double calculateEuclidDistance(Point2d point1, Point2d point2);
-    Point2d selectDirection(Point2d starting_point, Point2d goal_point, Point2d left_point, Point2d right_point);
-    std::shared_ptr<Point2d> findObstacleEnd(int x, int y, std::shared_ptr<std::shared_ptr<int>> map, int dimension, int direction);
-    std::shared_ptr<std::shared_ptr<Point2d>> checkColision(Point2d start_point, std::shared_ptr<std::shared_ptr<int>> map, int dimension, int range);
-    void task2();
+    //    double calculateEuclidDistance(Point2d point1, Point2d point2);
+    //    Point2d selectDirection(Point2d starting_point, Point2d goal_point, Point2d left_point, Point2d right_point);
+    //    std::shared_ptr<Point2d> findObstacleEnd(int x, int y, std::shared_ptr<std::shared_ptr<int>> map, int dimension, int direction);
+    //    std::shared_ptr<std::shared_ptr<Point2d>> checkColision(Point2d start_point, std::shared_ptr<std::shared_ptr<int>> map, int dimension, int range);
+    //    void task2();
+
+    //    char map[500][500] = {{}};
 
 private:
     //--skuste tu nic nevymazat... pridavajte co chcete, ale pri odoberani by sa mohol stat nejaky drobny problem, co bude vyhadzovat chyby
