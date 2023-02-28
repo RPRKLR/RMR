@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 {
 
     // tu je napevno nastavena ip. treba zmenit na to co ste si zadali do text boxu alebo nejaku inu pevnu. co bude spravna
-    ipaddress = "127.0.0.1"; // 192.168.1.11 127.0.0.1
+    ipaddress = "192.168.1.15"; // 192.168.1.11 127.0.0.1
     //  cap.open("http://192.168.1.11:8000/stream.mjpg");
     ui->setupUi(this);
     datacounter = 0;
@@ -173,7 +173,7 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
         /// okno pocuva vo svojom slote a vasu premennu nastavi tak ako chcete. prikaz emit to presne takto spravi
         /// viac o signal slotoch tu: https://doc.qt.io/qt-5/signalsandslots.html
         /// posielame sem nezmysli.. pohrajte sa nech sem idu zmysluplne veci
-        emit uiValuesChanged(robotdata.EncoderLeft, 11, 12);
+        emit uiValuesChanged(current_x, current_y, (current_angle * 180/PI));
         /// toto neodporucam na nejake komplikovane struktury.signal slot robi kopiu dat. radsej vtedy posielajte
         ///  prazdny signal a slot bude vykreslovat strukturu (vtedy ju musite mat samozrejme ako member premmennu v mainwindow.ak u niekoho najdem globalnu premennu,tak bude cistit bludisko zubnou kefkou.. kefku dodam)
         ///  vtedy ale odporucam pouzit mutex, aby sa vam nestalo ze budete pocas vypisovania prepisovat niekde inde
