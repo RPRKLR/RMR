@@ -92,14 +92,14 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
     ///  ale nic vypoctovo narocne - to iste vlakno ktore cita data z robota
     /// teraz tu posielam rychlosti na zaklade toho co setne joystick a vypisujeme data z robota(kazdy 5ty krat. ale mozete skusit aj castejsie). vyratajte si polohu. a vypiste spravnu
     ///  tuto joystick cast mozete vklude vymazat,alebo znasilnit na vas regulator alebo ake mate pohnutky
-    if (forwardspeed == 0 && rotationspeed != 0)
-        robot.setRotationSpeed(rotationspeed);
-    else if (forwardspeed != 0 && rotationspeed == 0)
-        robot.setTranslationSpeed(forwardspeed);
-    else if ((forwardspeed != 0 && rotationspeed != 0))
-        robot.setArcSpeed(forwardspeed, forwardspeed / rotationspeed);
-    else
-        robot.setTranslationSpeed(0);
+//    if (forwardspeed == 0 && rotationspeed != 0)
+//        robot.setRotationSpeed(rotationspeed);
+//    else if (forwardspeed != 0 && rotationspeed == 0)
+//        robot.setTranslationSpeed(forwardspeed);
+//    else if ((forwardspeed != 0 && rotationspeed != 0))
+//        robot.setArcSpeed(forwardspeed, forwardspeed / rotationspeed);
+//    else
+//        robot.setTranslationSpeed(0);
 
     /// TU PISTE KOD... TOTO JE TO MIESTO KED NEVIETE KDE ZACAT,TAK JE TO NAOZAJ TU. AK AJ TAK NEVIETE, SPYTAJTE SA CVICIACEHO MA TU NATO STRING KTORY DA DO HLADANIA XXX
 
@@ -132,35 +132,35 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
     old_left_encounter = robotdata.EncoderLeft;
     old_right_encounter = robotdata.EncoderRight;
 
-    if (index < (sizeof(y_goal) / sizeof(y_goal[0])) && nav)
-    {
-        angle_goal = atan2(y_goal[index] - current_y, x_goal[index] - current_x);
-        distance_from_goal = sqrt(pow(x_goal[index] - current_x, 2) + pow(y_goal[index] - current_y, 2));
+    // if (index < (sizeof(y_goal) / sizeof(y_goal[0])) && nav)
+    // {
+    //     angle_goal = atan2(y_goal[index] - current_y, x_goal[index] - current_x);
+    //     distance_from_goal = sqrt(pow(x_goal[index] - current_x, 2) + pow(y_goal[index] - current_y, 2));
 
-        if (distance_from_goal <= 0.1)
-        {
-            speed = 0;
-            ++index;
-            goTranslate();
-        }
-        else
-        {
-            if (abs(angle_goal - current_angle) < 0.09 || abs(current_angle - angle_goal) > 2 * PI - 0.09)
-                rotation_speed = 0;
-            else if (angle_goal < current_angle && ((current_angle - angle_goal) < PI))
-                regulateRotation(1 - abs(current_angle - angle_goal));
-            else
-                regulateRotation(abs(current_angle - angle_goal));
-            goRotate();
+    //     if (distance_from_goal <= 0.1)
+    //     {
+    //         speed = 0;
+    //         ++index;
+    //         goTranslate();
+    //     }
+    //     else
+    //     {
+    //         if (abs(angle_goal - current_angle) < 0.09 || abs(current_angle - angle_goal) > 2 * PI - 0.09)
+    //             rotation_speed = 0;
+    //         else if (angle_goal < current_angle && ((current_angle - angle_goal) < PI))
+    //             regulateRotation(1 - abs(current_angle - angle_goal));
+    //         else
+    //             regulateRotation(abs(current_angle - angle_goal));
+    //         goRotate();
 
-            if (rotation_speed == 0)
-            {
-                if (distance_from_goal > 0.1)
-                    regulateSpeed(distance_from_goal);
-                goTranslate();
-            }
-        }
-    }
+    //         if (rotation_speed == 0)
+    //         {
+    //             if (distance_from_goal > 0.1)
+    //                 regulateSpeed(distance_from_goal);
+    //             goTranslate();
+    //         }
+    //     }
+    // }
 
     if (datacounter % 5)
     {
@@ -173,7 +173,7 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
         /// okno pocuva vo svojom slote a vasu premennu nastavi tak ako chcete. prikaz emit to presne takto spravi
         /// viac o signal slotoch tu: https://doc.qt.io/qt-5/signalsandslots.html
         /// posielame sem nezmysli.. pohrajte sa nech sem idu zmysluplne veci
-        emit uiValuesChanged(current_x, current_y, (current_angle * 180/PI));
+        emit uiValuesChanged(current_x, current_y, (current_angle * 180 / PI));
         /// toto neodporucam na nejake komplikovane struktury.signal slot robi kopiu dat. radsej vtedy posielajte
         ///  prazdny signal a slot bude vykreslovat strukturu (vtedy ju musite mat samozrejme ako member premmennu v mainwindow.ak u niekoho najdem globalnu premennu,tak bude cistit bludisko zubnou kefkou.. kefku dodam)
         ///  vtedy ale odporucam pouzit mutex, aby sa vam nestalo ze budete pocas vypisovania prepisovat niekde inde
