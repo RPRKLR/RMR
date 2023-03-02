@@ -298,11 +298,12 @@ void MainWindow::goRotate()
     robot.setRotationSpeed(speed);
 }
 
-// double MainWindow::calculateEuclidDistance(Point2d point1, Point2d point2)
-//{
-//     // Calculating Euclid distance between two points
-//     return sqrt(pow(point2.x - point1.x, 2) + pow(point2.y - point1.y, 2));
-// }
+double MainWindow::calculateEuclidDistance(Point2d point1, Point2d point2)
+{
+    // Calculating Euclid distance between two points
+    return sqrt(pow(point2.x - point1.x, 2) + pow(point2.y - point1.y, 2));
+}
+
 // Point2d MainWindow::selectDirection(Point2d starting_point, Point2d goal_point, Point2d left_point, Point2d right_point)
 //{
 //     // Calculate the euclid distance from the start point to the left obstacle corner, and from the left obstacle corner to the goal point
