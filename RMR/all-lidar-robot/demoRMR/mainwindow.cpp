@@ -186,7 +186,7 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
                 double scan_distance = copyOfLaserData.Data[i].scanDistance / 1000;
                 int point_y = -(current_y + scan_distance * sin((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
                 int point_x = (current_x + scan_distance * cos((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
-                //                created_map[point_x][point_y] = 1;
+                created_map[point_x][point_y] = 1;
             }
         }
         FILE *file;
@@ -195,9 +195,9 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
         {
             for (int y = 0; y < 500; ++y)
             {
-                //                fprintf(file, "%d", created_map[x][y]);
+                fprintf(file, "%d", created_map[x][y]);
             }
-            //            fprintf(file, "%d\n", created_map[x][y]);
+            fprintf(file, "%d\n", created_map[x][y]);
         }
         fclose(file);
     }
