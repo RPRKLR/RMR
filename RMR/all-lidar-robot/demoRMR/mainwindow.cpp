@@ -272,7 +272,7 @@ void MainWindow::getNewFrame()
 
 double MainWindow::regulateSpeed(double error_distance)
 {
-    speed = 1500 * error_distance;
+    speed = 2000 * error_distance;
     if (speed > 500)
         speed = 500;
     return speed;
@@ -280,7 +280,7 @@ double MainWindow::regulateSpeed(double error_distance)
 
 double MainWindow::regulateRotation(double error_angle)
 {
-    rotation_speed = 7 * error_angle;
+    rotation_speed = 8 * error_angle;
     if (rotation_speed > PI / 2)
         rotation_speed = PI / 2;
     else if (rotation_speed < -PI / 2)
@@ -304,24 +304,24 @@ double MainWindow::calculateEuclidDistance(Point2d point1, Point2d point2)
     return sqrt(pow(point2.x - point1.x, 2) + pow(point2.y - point1.y, 2));
 }
 
-// Point2d MainWindow::selectDirection(Point2d starting_point, Point2d goal_point, Point2d left_point, Point2d right_point)
-//{
-//     // Calculate the euclid distance from the start point to the left obstacle corner, and from the left obstacle corner to the goal point
-//     double distance1 = calculateEuclidDistance(starting_point, left_point) + calculateEuclidDistance(left_point, goal_point);
-//     // Same just with the right obstacle corner
-//     double distance2 = calculateEuclidDistance(starting_point, right_point) + calculateEuclidDistance(right_point, goal_point);
+Point2d MainWindow::selectDirection(Point2d starting_point, Point2d goal_point, Point2d left_point, Point2d right_point)
+{
+    // Calculate the euclid distance from the start point to the left obstacle corner, and from the left obstacle corner to the goal point
+    double distance1 = calculateEuclidDistance(starting_point, left_point) + calculateEuclidDistance(left_point, goal_point);
+    // Same just with the right obstacle corner
+    double distance2 = calculateEuclidDistance(starting_point, right_point) + calculateEuclidDistance(right_point, goal_point);
 
-//    if (distance1 < distance2)
-//    {
-//        left_point.distance = distance1;
-//        return left_point;
-//    }
-//    else
-//    {
-//        right_point.distance = distance2;
-//        return right_point;
-//    }
-//}
+    if (distance1 < distance2)
+    {
+        left_point.distance = distance1;
+        return left_point;
+    }
+    else
+    {
+        right_point.distance = distance2;
+        return right_point;
+    }
+}
 // std::shared_ptr<Point2d> MainWindow::findObstacleEnd(int x, int y, std::shared_ptr<std::shared_ptr<int>> map, int dimension, int direction)
 //{
 //    int i = y;
