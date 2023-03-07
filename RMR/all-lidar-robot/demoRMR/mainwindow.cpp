@@ -3,7 +3,6 @@
 #include <QPainter>
 #include <math.h>
 
-
 /// TOTO JE DEMO PROGRAM...AK SI HO NASIEL NA PC V LABAKU NEPREPISUJ NIC,ALE SKOPIRUJ SI MA NIEKAM DO INEHO FOLDERA
 ///  AK HO MAS Z GITU A ROBIS NA LABAKOVOM PC, TAK SI HO VLOZ DO FOLDERA KTORY JE JASNE ODLISITELNY OD TVOJICH KOLEGOV
 ///  NASLEDNE V POLOZKE Projects SKONTROLUJ CI JE VYPNUTY shadow build...
@@ -106,17 +105,14 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
 
     double delta_s = (right_wheel_distance + left_wheel_distance) / 2;
 
-
     current_x += delta_s * cos(current_angle + (delta_fi / 2));
-    current_y += delta_s * sin(current_angle + (delta_fi/2));
+    current_y += delta_s * sin(current_angle + (delta_fi / 2));
 
     current_angle += delta_fi;
     if (current_angle > 2 * PI)
         current_angle -= 2 * PI;
     if (current_angle < 0)
         current_angle += 2 * PI;
-
-
 
     datacounter++;
 
@@ -136,7 +132,6 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
         }
         else
         {
-
 
             if (rotation_speed == 0)
             {
@@ -186,31 +181,31 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
     memcpy(&copyOfLaserData, &laserData, sizeof(LaserMeasurement));
     // tu mozete robit s datami z lidaru.. napriklad najst prekazky, zapisat do mapy. naplanovat ako sa prekazke vyhnut.
     //  ale nic vypoctovo narocne - to iste vlakno ktore cita data z lidaru
-//    if (rotation_speed == 0)
-//    {
-//        for (int i = 0; i < copyOfLaserData.numberOfScans; ++i)
-//        {
-//            if (copyOfLaserData.Data[i].scanDistance > 145)
-//            {
-//                double scan_distance = copyOfLaserData.Data[i].scanDistance / 1000;
-//                int point_y = -(current_y + scan_distance * sin((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
-//                int point_x = (current_x + scan_distance * cos((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
-//                created_map[point_x][point_y] = 1;
-//            }
-//        }
-//        FILE *file;
-//        file = fopen("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/map.txt", "w");
-//        int x, y;
-//        for (x = 0; x < 500; ++x)
-//        {
-//            for (y = 0; y < 500; ++y)
-//            {
-//                fprintf(file, "%d", created_map[x][y]);
-//            }
-//            fprintf(file, "%d\n", created_map[x][y]);
-//        }
-//        fclose(file);
-//    }
+    //    if (rotation_speed == 0)
+    //    {
+    //        for (int i = 0; i < copyOfLaserData.numberOfScans; ++i)
+    //        {
+    //            if (copyOfLaserData.Data[i].scanDistance > 145)
+    //            {
+    //                double scan_distance = copyOfLaserData.Data[i].scanDistance / 1000;
+    //                int point_y = -(current_y + scan_distance * sin((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
+    //                int point_x = (current_x + scan_distance * cos((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
+    //                created_map[point_x][point_y] = 1;
+    //            }
+    //        }
+    //        FILE *file;
+    //        file = fopen("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/map.txt", "w");
+    //        int x, y;
+    //        for (x = 0; x < 500; ++x)
+    //        {
+    //            for (y = 0; y < 500; ++y)
+    //            {
+    //                fprintf(file, "%d", created_map[x][y]);
+    //            }
+    //            fprintf(file, "%d\n", created_map[x][y]);
+    //        }
+    //        fclose(file);
+    //    }
     updateLaserPicture = 1;
     update(); // tento prikaz prinuti prekreslit obrazovku.. zavola sa paintEvent funkcia
 
