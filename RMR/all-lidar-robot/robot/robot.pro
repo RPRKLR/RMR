@@ -17,14 +17,16 @@ DESTDIR = ../bin
 SOURCES += \
     CKobuki.cpp \
     robot.cpp \
-    rplidar.cpp
+    rplidar.cpp \
+    map_loader.cpp
 
 HEADERS += \
     CKobuki.h \
     robot_global.h \
     robot.h \
     rplidar.h \
-    szevent.h
+    szevent.h \
+    map_loader.h
 
 # Default rules for deployment.
 unix {
