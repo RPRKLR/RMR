@@ -41,7 +41,7 @@ class MainWindow : public QMainWindow
 public:
     bool useCamera1;
     //  cv::VideoCapture cap;
-    char created_map [500][500];
+    int created_map [500][500];
     int actIndex;
     //    cv::Mat frame[3];
 
@@ -83,8 +83,6 @@ private slots:
     //    std::shared_ptr<std::shared_ptr<Point2d>> checkColision(Point2d start_point, std::shared_ptr<std::shared_ptr<int>> map, int dimension, int range);
     //    void task2();
 
-    //    char map[500][500] = {{}};
-
 private:
     //--skuste tu nic nevymazat... pridavajte co chcete, ale pri odoberani by sa mohol stat nejaky drobny problem, co bude vyhadzovat chyby
     Ui::MainWindow *ui;
@@ -100,11 +98,12 @@ private:
     double current_angle = 0, left_wheel_distance, right_wheel_distance, current_x = 0, current_y = 0, angle_goal, distance_from_goal, rotation_speed = 0;
     // I used unsigned data for the old encounter data, so I do not have to deal with overflows
     unsigned short old_left_encounter, old_right_encounter;
-    int speed = 0, index = 0;
+    int speed = 0, position_index = 0;
     double x_goal[3] = {0, 1.0, 2.0};
     double y_goal[3] = {0, 1.0, 2.0};
     double forwardspeed;  // mm/s
     double rotationspeed; // omega/s
+    bool mapping = false;
     bool nav = false;
 public slots:
     void setUiValues(double robotX, double robotY, double robotFi);

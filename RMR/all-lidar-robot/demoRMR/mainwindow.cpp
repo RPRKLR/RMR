@@ -2,6 +2,12 @@
 #include "ui_mainwindow.h"
 #include <QPainter>
 #include <math.h>
+#include <string>
+#include <vector>
+#include <fstream>
+#include <stdlib.h>
+#include <stdio.h>
+
 
 /// TOTO JE DEMO PROGRAM...AK SI HO NASIEL NA PC V LABAKU NEPREPISUJ NIC,ALE SKOPIRUJ SI MA NIEKAM DO INEHO FOLDERA
 ///  AK HO MAS Z GITU A ROBIS NA LABAKOVOM PC, TAK SI HO VLOZ DO FOLDERA KTORY JE JASNE ODLISITELNY OD TVOJICH KOLEGOV
@@ -114,20 +120,24 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
     if (current_angle < 0)
         current_angle += 2 * PI;
 
+//    if (current_angle > PI)
+//            current_angle -= 2*PI;
+//    if (current_angle <= -PI)
+//            current_angle = current_angle + 2*PI;
     datacounter++;
 
     old_left_encounter = robotdata.EncoderLeft;
     old_right_encounter = robotdata.EncoderRight;
 
-    if (index < (sizeof(y_goal) / sizeof(y_goal[0])) && nav)
+    if (position_index < (sizeof(y_goal) / sizeof(y_goal[0])) && nav)
     {
-        angle_goal = atan2(y_goal[index] - current_y, x_goal[index] - current_x);
-        distance_from_goal = sqrt(pow(x_goal[index] - current_x, 2) + pow(y_goal[index] - current_y, 2));
+        angle_goal = atan2(y_goal[position_index] - current_y, x_goal[position_index] - current_x);
+        distance_from_goal = sqrt(pow(x_goal[position_index] - current_x, 2) + pow(y_goal[position_index] - current_y, 2));
 
         if (distance_from_goal <= 0.1)
         {
             speed = 0;
-            ++index;
+            ++position_index;
             goTranslate();
         }
         else
@@ -144,7 +154,7 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
                 if (abs(angle_goal - current_angle) < 0.09 || abs(current_angle - angle_goal) > 2 * PI - 0.09)
                     rotation_speed = 0;
                 else if (angle_goal < current_angle && ((current_angle - angle_goal) < PI))
-                    regulateRotation(1 - abs(current_angle - angle_goal));
+                    regulateRotation(-abs(current_angle - angle_goal));
                 else
                     regulateRotation(abs(current_angle - angle_goal));
                 goRotate();
@@ -181,31 +191,51 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
     memcpy(&copyOfLaserData, &laserData, sizeof(LaserMeasurement));
     // tu mozete robit s datami z lidaru.. napriklad najst prekazky, zapisat do mapy. naplanovat ako sa prekazke vyhnut.
     //  ale nic vypoctovo narocne - to iste vlakno ktore cita data z lidaru
-    //    if (rotation_speed == 0)
-    //    {
-    //        for (int i = 0; i < copyOfLaserData.numberOfScans; ++i)
-    //        {
-    //            if (copyOfLaserData.Data[i].scanDistance > 145)
-    //            {
-    //                double scan_distance = copyOfLaserData.Data[i].scanDistance / 1000;
-    //                int point_y = -(current_y + scan_distance * sin((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
-    //                int point_x = (current_x + scan_distance * cos((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
-    //                created_map[point_x][point_y] = 1;
-    //            }
-    //        }
-    //        FILE *file;
-    //        file = fopen("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/map.txt", "w");
-    //        int x, y;
-    //        for (x = 0; x < 500; ++x)
-    //        {
-    //            for (y = 0; y < 500; ++y)
-    //            {
-    //                fprintf(file, "%d", created_map[x][y]);
-    //            }
-    //            fprintf(file, "%d\n", created_map[x][y]);
-    //        }
-    //        fclose(file);
-    //    }
+        if (rotation_speed == 0 && mapping == true)
+        {
+            for (int i = 0; i < copyOfLaserData.numberOfScans; ++i)
+            {
+
+                if (copyOfLaserData.Data[i].scanDistance > 145)
+                {
+                    double scan_distance = copyOfLaserData.Data[i].scanDistance / 1000;
+                    int point_y = -(current_y + scan_distance * sin((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
+                    int point_x = (current_x + scan_distance * cos((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
+                    created_map[point_x][point_y] = 1;
+
+                }
+            }
+            std::string temp_str;
+            std::ofstream file ("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/map.txt");
+            if (file.is_open())
+            {
+
+                for(int i = 0; i < 500; ++i)
+                {
+                    for(int j = 0; j < 500; ++j)
+                    {
+                        std::string character = std::to_string(created_map[i][j]);
+                        temp_str += character;
+                    }
+                    file << temp_str << std::endl;
+                    temp_str.clear();
+                }
+                file.close();
+            }
+
+//            FILE *file;
+//            file = fopen("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/map.txt", "w");
+//            int x, y;
+//            for (x = 0; x < 500; ++x)
+//            {
+//                for (y = 0; y < 500; ++y)
+//                {
+//                    fprintf(file, "%d", created_map[x][y]);
+//                }
+//                fprintf(file, "%d\n", created_map[x][y]);
+//            }
+//            fclose(file);
+        }
     updateLaserPicture = 1;
     update(); // tento prikaz prinuti prekreslit obrazovku.. zavola sa paintEvent funkcia
 
@@ -278,8 +308,8 @@ void MainWindow::getNewFrame()
 double MainWindow::regulateSpeed(double error_distance)
 {
     speed = 2000 * error_distance;
-    if (speed > 500)
-        speed = 500;
+    if (speed > 300)
+        speed = 300;
     return speed;
 }
 
