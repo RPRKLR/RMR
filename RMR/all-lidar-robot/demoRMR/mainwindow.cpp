@@ -411,9 +411,9 @@ Point2d MainWindow::selectDirection(Point2d starting_point, Point2d goal_point, 
 
 //}
 
-void MainWIndow::floodAlgorithm(Point2d end_point)
+void MainWindow::floodAlgorithm(Point2d end_point)
 {
-    map_created[end_point.x][end_point.y];
+    created_map[int(end_point.x)][int(end_point.y)];
     bool is_there;
     while (1)
     {
@@ -421,37 +421,37 @@ void MainWIndow::floodAlgorithm(Point2d end_point)
         {
             for (int j = 0; j < 500; ++j)
             {
-                if ((map_created[i][j] != 0) && (map_created[i][j] != 1) && map_created[i][j] != 900)
+                if ((created_map[i][j] != 0) && (created_map[i][j] != 1) && created_map[i][j] != 900)
                 {
                     if (i - 1 >= 0)
                     {
-                        if (map_created[i - 1][j] == 0)
+                        if (created_map[i - 1][j] == 0)
                         {
-                            map_created[i - 1][j] = map_created[i][j] + 1;
+                            created_map[i - 1][j] = created_map[i][j] + 1;
                             is_there = true;
                         }
                     }
                     if (i + 1 < 500)
                     {
-                        if (map_created[i + 1][j] == 0)
+                        if (created_map[i + 1][j] == 0)
                         {
-                            map_created[i + 1][j] = map_created[i][j] + 1;
+                            created_map[i + 1][j] = created_map[i][j] + 1;
                             is_there = true;
                         }
                     }
                     if (j - 1 >= 0)
                     {
-                        if (map_created[i][j - 1] == 0)
+                        if (created_map[i][j - 1] == 0)
                         {
-                            map_created[i][j - 1] = map_created[i][j] + 1;
+                            created_map[i][j - 1] = created_map[i][j] + 1;
                             is_there = true;
                         }
                     }
                     if (j + 1 < 500)
                     {
-                        if (map_created[i][j + 1] == 0)
+                        if (created_map[i][j + 1] == 0)
                         {
-                            map_created[i][j + 1] = map_created[i][j] + 1;
+                            created_map[i][j + 1] = created_map[i][j] + 1;
                             is_there = true;
                         }
                     }
@@ -467,12 +467,12 @@ void MainWIndow::floodAlgorithm(Point2d end_point)
 
 int MainWindow::findPath(int map[500][500], Point2d start_position)
 {
-    while (map[start_point.x][start_point.y] != 2)
+    while (map[int(start_position.x)][int(start_position.y)] != 2)
     {
-        if (map[start_point.x][start_point.y] == (map[start_point.x + 1][j]) + 1)
+        if (map[int(start_position.x)][int(start_position.y)] == (map[int(start_position.x) + 1][int(start_position.y)]) + 1)
         {
-            int temp = start_point.x;
-            while (map[temp][start_position.y] == (map[temp + 1][j]) + 1)
+            int temp = start_position.x;
+            while (map[temp][int(start_position.y)] == (map[temp + 1][int(start_position.y)]) + 1)
             {
                 temp += 1;
             }

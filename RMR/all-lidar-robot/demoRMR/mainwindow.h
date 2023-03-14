@@ -20,6 +20,7 @@
 #include <memory>
 
 #include "robot.h"
+#include "map_loader.h"
 
 namespace Ui
 {
