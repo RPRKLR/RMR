@@ -7,7 +7,7 @@
 #include <fstream>
 #include <stdlib.h>
 #include <stdio.h>
-
+#include "map_loader.h"
 
 /// TOTO JE DEMO PROGRAM...AK SI HO NASIEL NA PC V LABAKU NEPREPISUJ NIC,ALE SKOPIRUJ SI MA NIEKAM DO INEHO FOLDERA
 ///  AK HO MAS Z GITU A ROBIS NA LABAKOVOM PC, TAK SI HO VLOZ DO FOLDERA KTORY JE JASNE ODLISITELNY OD TVOJICH KOLEGOV
@@ -120,10 +120,10 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
     if (current_angle < 0)
         current_angle += 2 * PI;
 
-//    if (current_angle > PI)
-//            current_angle -= 2*PI;
-//    if (current_angle <= -PI)
-//            current_angle = current_angle + 2*PI;
+    //    if (current_angle > PI)
+    //            current_angle -= 2*PI;
+    //    if (current_angle <= -PI)
+    //            current_angle = current_angle + 2*PI;
     datacounter++;
 
     old_left_encounter = robotdata.EncoderLeft;
@@ -191,51 +191,50 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
     memcpy(&copyOfLaserData, &laserData, sizeof(LaserMeasurement));
     // tu mozete robit s datami z lidaru.. napriklad najst prekazky, zapisat do mapy. naplanovat ako sa prekazke vyhnut.
     //  ale nic vypoctovo narocne - to iste vlakno ktore cita data z lidaru
-        if (rotation_speed == 0 && mapping == true)
+    if (rotation_speed == 0 && mapping == true)
+    {
+        for (int i = 0; i < copyOfLaserData.numberOfScans; ++i)
         {
-            for (int i = 0; i < copyOfLaserData.numberOfScans; ++i)
+
+            if (copyOfLaserData.Data[i].scanDistance > 145)
             {
-
-                if (copyOfLaserData.Data[i].scanDistance > 145)
-                {
-                    double scan_distance = copyOfLaserData.Data[i].scanDistance / 1000;
-                    int point_y = -(current_y + scan_distance * sin((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
-                    int point_x = (current_x + scan_distance * cos((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
-                    created_map[point_x][point_y] = 1;
-
-                }
+                double scan_distance = copyOfLaserData.Data[i].scanDistance / 1000;
+                int point_y = -(current_y + scan_distance * sin((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
+                int point_x = (current_x + scan_distance * cos((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
+                created_map[point_x][point_y] = 1;
             }
-            std::string temp_str;
-            std::ofstream file ("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/map.txt");
-            if (file.is_open())
-            {
-
-                for(int i = 0; i < 500; ++i)
-                {
-                    for(int j = 0; j < 500; ++j)
-                    {
-                        std::string character = std::to_string(created_map[i][j]);
-                        temp_str += character;
-                    }
-                    file << temp_str << std::endl;
-                    temp_str.clear();
-                }
-                file.close();
-            }
-
-//            FILE *file;
-//            file = fopen("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/map.txt", "w");
-//            int x, y;
-//            for (x = 0; x < 500; ++x)
-//            {
-//                for (y = 0; y < 500; ++y)
-//                {
-//                    fprintf(file, "%d", created_map[x][y]);
-//                }
-//                fprintf(file, "%d\n", created_map[x][y]);
-//            }
-//            fclose(file);
         }
+        std::string temp_str;
+        std::ofstream file("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/map.txt");
+        if (file.is_open())
+        {
+
+            for (int i = 0; i < 500; ++i)
+            {
+                for (int j = 0; j < 500; ++j)
+                {
+                    std::string character = std::to_string(created_map[i][j]);
+                    temp_str += character;
+                }
+                file << temp_str << std::endl;
+                temp_str.clear();
+            }
+            file.close();
+        }
+
+        //            FILE *file;
+        //            file = fopen("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/map.txt", "w");
+        //            int x, y;
+        //            for (x = 0; x < 500; ++x)
+        //            {
+        //                for (y = 0; y < 500; ++y)
+        //                {
+        //                    fprintf(file, "%d", created_map[x][y]);
+        //                }
+        //                fprintf(file, "%d\n", created_map[x][y]);
+        //            }
+        //            fclose(file);
+    }
     updateLaserPicture = 1;
     update(); // tento prikaz prinuti prekreslit obrazovku.. zavola sa paintEvent funkcia
 
@@ -411,3 +410,72 @@ Point2d MainWindow::selectDirection(Point2d starting_point, Point2d goal_point, 
 //{
 
 //}
+
+void MainWIndow::floodAlgorithm(Point2d end_point)
+{
+    map_created[end_point.x][end_point.y];
+    bool is_there;
+    while (1)
+    {
+        for (int i = 0; i < 500; ++i)
+        {
+            for (int j = 0; j < 500; ++j)
+            {
+                if ((map_created[i][j] != 0) && (map_created[i][j] != 1) && map_created[i][j] != 900)
+                {
+                    if (i - 1 >= 0)
+                    {
+                        if (map_created[i - 1][j] == 0)
+                        {
+                            map_created[i - 1][j] = map_created[i][j] + 1;
+                            is_there = true;
+                        }
+                    }
+                    if (i + 1 < 500)
+                    {
+                        if (map_created[i + 1][j] == 0)
+                        {
+                            map_created[i + 1][j] = map_created[i][j] + 1;
+                            is_there = true;
+                        }
+                    }
+                    if (j - 1 >= 0)
+                    {
+                        if (map_created[i][j - 1] == 0)
+                        {
+                            map_created[i][j - 1] = map_created[i][j] + 1;
+                            is_there = true;
+                        }
+                    }
+                    if (j + 1 < 500)
+                    {
+                        if (map_created[i][j + 1] == 0)
+                        {
+                            map_created[i][j + 1] = map_created[i][j] + 1;
+                            is_there = true;
+                        }
+                    }
+                }
+            }
+            if (is_there == false)
+            {
+                break;
+            }
+        }
+    }
+}
+
+int MainWindow::findPath(int map[500][500], Point2d start_position)
+{
+    while (map[start_point.x][start_point.y] != 2)
+    {
+        if (map[start_point.x][start_point.y] == (map[start_point.x + 1][j]) + 1)
+        {
+            int temp = start_point.x;
+            while (map[temp][start_position.y] == (map[temp + 1][j]) + 1)
+            {
+                temp += 1;
+            }
+        }
+    }
+}

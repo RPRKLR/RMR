@@ -41,7 +41,8 @@ class MainWindow : public QMainWindow
 public:
     bool useCamera1;
     //  cv::VideoCapture cap;
-    int created_map [500][500];
+    int created_map[500][500];
+    TMapArea map;
     int actIndex;
     //    cv::Mat frame[3];
 
@@ -58,7 +59,8 @@ public:
     void laserprocess();
     double regulateSpeed(double error_distance);
     double regulateRotation(double error_angle);
-
+    int findPath(int map[500][500], Point2d start_position);
+    void floodAlgorithm(Point2d end_point);
 
 private slots:
     void on_pushButton_9_clicked();
@@ -77,8 +79,8 @@ private slots:
 
     void getNewFrame();
 
-        double calculateEuclidDistance(Point2d point1, Point2d point2);
-        Point2d selectDirection(Point2d starting_point, Point2d goal_point, Point2d left_point, Point2d right_point);
+    double calculateEuclidDistance(Point2d point1, Point2d point2);
+    Point2d selectDirection(Point2d starting_point, Point2d goal_point, Point2d left_point, Point2d right_point);
     //    std::shared_ptr<Point2d> findObstacleEnd(int x, int y, std::shared_ptr<std::shared_ptr<int>> map, int dimension, int direction);
     //    std::shared_ptr<std::shared_ptr<Point2d>> checkColision(Point2d start_point, std::shared_ptr<std::shared_ptr<int>> map, int dimension, int range);
     //    void task2();
