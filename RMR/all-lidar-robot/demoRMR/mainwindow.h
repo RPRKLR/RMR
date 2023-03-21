@@ -102,12 +102,12 @@ private:
     // I used unsigned data for the old encounter data, so I do not have to deal with overflows
     unsigned short old_left_encounter, old_right_encounter;
     int speed = 0, position_index = 0;
-    double x_goal[3] = {0, 1.0, 2.0};
-    double y_goal[3] = {0, 1.0, 2.0};
+    double x_goal[3] = {0.5,0.5,1.0};
+    double y_goal[3] = {0.0,0.5,1.0};
     double forwardspeed;  // mm/s
     double rotationspeed; // omega/s
     bool mapping = false;
-    bool nav = false;
+    bool nav = true;
 public slots:
     void setUiValues(double robotX, double robotY, double robotFi);
 signals:
