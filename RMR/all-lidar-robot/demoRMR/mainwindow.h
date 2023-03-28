@@ -42,7 +42,7 @@ class MainWindow : public QMainWindow
 public:
     bool useCamera1;
     //  cv::VideoCapture cap;
-    int created_map[500][500];
+    int created_map[1000][1000];
     TMapArea map;
     int actIndex;
     //    cv::Mat frame[3];
@@ -106,8 +106,8 @@ private:
     double y_goal[3] = {0.0,0.5,1.0};
     double forwardspeed;  // mm/s
     double rotationspeed; // omega/s
-    bool mapping = false;
-    bool nav = true;
+    bool mapping = true;
+    bool nav = false;
 public slots:
     void setUiValues(double robotX, double robotY, double robotFi);
 signals:
