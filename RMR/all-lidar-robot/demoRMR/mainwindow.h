@@ -42,7 +42,7 @@ class MainWindow : public QMainWindow
 public:
     bool useCamera1;
     //  cv::VideoCapture cap;
-    int created_map[1000][1000];
+    int created_map[500][500];
     TMapArea map;
     int actIndex;
     //    cv::Mat frame[3];
