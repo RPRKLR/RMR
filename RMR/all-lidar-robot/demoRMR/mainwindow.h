@@ -34,6 +34,13 @@ typedef struct
     double distance;
 } Point2d;
 
+enum State
+{
+    DONE,
+    GOALSEEK,
+    WALLFOLLOW,
+};
+
 /// toto je trieda s oknom.. ktora sa spusti ked sa spusti aplikacia.. su tu vsetky gombiky a spustania...
 class MainWindow : public QMainWindow
 {
@@ -102,12 +109,13 @@ private:
     // I used unsigned data for the old encounter data, so I do not have to deal with overflows
     unsigned short old_left_encounter, old_right_encounter;
     int speed = 0, position_index = 0;
-    double x_goal[3] = {0.5,0.5,1.0};
-    double y_goal[3] = {0.0,0.5,1.0};
+    double x_goal[3] = {0.5, 0.5, 1.0};
+    double y_goal[3] = {0.0, 0.5, 1.0};
     double forwardspeed;  // mm/s
     double rotationspeed; // omega/s
     bool mapping = true;
     bool nav = false;
+    State robot_state;
 public slots:
     void setUiValues(double robotX, double robotY, double robotFi);
 signals:

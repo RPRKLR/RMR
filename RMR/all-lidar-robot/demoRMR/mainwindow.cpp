@@ -519,3 +519,86 @@ int MainWindow::findPath(int map[500][500], Point2d start_position)
         }
     }
 }
+
+double getDistance(double x_original, double y_original, double x_goal, double y_goal)
+{
+    return sqrt(pow(x_original - x_goal, 2) + pow(y_original - y_goal, 2));
+}
+
+double computeTranslation(LaserMeasurement sonars)
+{
+    int mim_sonar_front;
+    min_sonar_front = minRange(sonars, -M_PI / 4, M_PI / 4);
+    if (min_sonar_front < 200)
+        return 0;
+    else
+        return min(500, min_sonar_front - 200);
+}
+
+double computeGoalSeek(double goal_angle)
+{
+    if (abs(goal_angle) < M_PI / 10)
+        return 0;
+    else
+        return goal_angle * 100;
+}
+
+double minRange(LaserMeasurement sonars, double start, double begin) {}
+
+bool obstacleInWay(double angle_goal, LaserMeasurement sonars)
+{
+    int min_sonar_value = 0;
+    min_sonar_value = minRange(sonars, angle_goal - (M_PI / 4), angle_goal + (M_PI / 4));
+    return (min_sonar_value < 200)
+}
+
+double computeRWFRot(LaserMeasurement sonars)
+{
+    double min_left, min_right, desired_turn;
+    min_right = minRange(sonars, -M_PI / 2, 0);
+    min_left = minRange(sonars, 0, M_PI / 2);
+    if (max(min_right, min_left) < 200)
+        return 400; // Hard left
+    else
+    {
+        desired_turn = (400 - min_right) * 2;
+        desired_turn = intorange(-400, desired_turn, 400);
+        return desired_turn;
+    }
+}
+
+void bug2(double x_goal_position, double y_goal_position)
+{
+    bool at_goal = false;
+    while (!at_goal)
+    {
+        double distance_to_goal = getDistance(current_x, current_y, x_goal_position, y_goal_position);
+        double goal_angle = atan2(y_goal_position - current_y, x_goal_position - current_x);
+        // ADD GOAL THRESHOLD AS A CONSTANT VARIABLE, NOW I AM DOING IT HERE
+        const double at_goal_threshold = 0.2;
+        if (distance_to_goal < at_goal_threshold)
+        {
+            std::cout << "At goal" << std::endl;
+            speed = 0;
+            rotation_speed = 0;
+            at_goal = true;
+            robot_state = DONE;
+        }
+        else
+        {
+            speed = computeTranslation(sonar);
+            if (robot_state == State.GOALSEEK)
+            {
+                rotation_speed = computeGoalSeek(goal_angle);
+                if (obstacleInWay(goal_angle, sonars))
+                    robot_state = State.WALLFOLLOW;
+            }
+            if (robot_state == State.WALLFOLLOW)
+            {
+                rotation_speed = computeRWFRot(sonars);
+                if (!obstacleInWay(goal_angle, sonars))
+                    robot_state = State.GOALSEEK;
+            }
+        }
+    }
+}
