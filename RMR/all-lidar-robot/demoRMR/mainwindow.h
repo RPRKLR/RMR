@@ -69,6 +69,14 @@ public:
     double regulateRotation(double error_angle);
     int findPath(int map[500][500], Point2d start_position);
     void floodAlgorithm(Point2d end_point);
+    void bug2(double x_goal_position, double y_goal_position, LaserMeasurement &sonars);
+    double computeRWFRot(LaserMeasurement sonars);
+    bool obstacleInWay(double angle_goal, LaserMeasurement sonars);
+    double minRange(LaserMeasurement sonars, double start, double end);
+    double getDistance(double x_original, double y_original, double x_goal, double y_goal);
+    double computeTranslation(LaserMeasurement sonars);
+    double computeGoalSeek(double goal_angle);
+    double inToRange(double minimal_value, double current_value, double maximum_value);
 
 private slots:
     void on_pushButton_9_clicked();

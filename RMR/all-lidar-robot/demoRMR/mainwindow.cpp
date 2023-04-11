@@ -7,7 +7,7 @@
 #include <fstream>
 #include <stdlib.h>
 #include <stdio.h>
-#include "map_loader.h"
+// #include "map_loader.h"
 
 /// TOTO JE DEMO PROGRAM...AK SI HO NASIEL NA PC V LABAKU NEPREPISUJ NIC,ALE SKOPIRUJ SI MA NIEKAM DO INEHO FOLDERA
 ///  AK HO MAS Z GITU A ROBIS NA LABAKOVOM PC, TAK SI HO VLOZ DO FOLDERA KTORY JE JASNE ODLISITELNY OD TVOJICH KOLEGOV
@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 {
 
     // tu je napevno nastavena ip. treba zmenit na to co ste si zadali do text boxu alebo nejaku inu pevnu. co bude spravna
-    ipaddress = "192.168.1.15"; // 192.168.1.11 127.0.0.1
+    ipaddress = "127.0.0.1"; //"192.168.1.15"; // 192.168.1.11 127.0.0.1
     //  cap.open("http://192.168.1.11:8000/stream.mjpg");
     ui->setupUi(this);
     datacounter = 0;
@@ -505,29 +505,29 @@ void MainWindow::floodAlgorithm(Point2d end_point)
     }
 }
 
-int MainWindow::findPath(int map[500][500], Point2d start_position)
-{
-    while (map[int(start_position.x)][int(start_position.y)] != 2)
-    {
-        if (map[int(start_position.x)][int(start_position.y)] == (map[int(start_position.x) + 1][int(start_position.y)]) + 1)
-        {
-            int temp = start_position.x;
-            while (map[temp][int(start_position.y)] == (map[temp + 1][int(start_position.y)]) + 1)
-            {
-                temp += 1;
-            }
-        }
-    }
-}
+// int MainWindow::findPath(int map[500][500], Point2d start_position)
+//{
+//     while (map[int(start_position.x)][int(start_position.y)] != 2)
+//     {
+//         if (map[int(start_position.x)][int(start_position.y)] == (map[int(start_position.x) + 1][int(start_position.y)]) + 1)
+//         {
+//             int temp = start_position.x;
+//             while (map[temp][int(start_position.y)] == (map[temp + 1][int(start_position.y)]) + 1)
+//             {
+//                 temp += 1;
+//             }
+//         }
+//     }
+// }
 
-double getDistance(double x_original, double y_original, double x_goal, double y_goal)
+double MainWindow::getDistance(double x_original, double y_original, double x_goal, double y_goal)
 {
     return sqrt(pow(x_original - x_goal, 2) + pow(y_original - y_goal, 2));
 }
 
-double computeTranslation(LaserMeasurement sonars)
+double MainWindow::computeTranslation(LaserMeasurement sonars)
 {
-    int mim_sonar_front;
+    double min_sonar_front;
     min_sonar_front = minRange(sonars, -M_PI / 4, M_PI / 4);
     if (min_sonar_front < 200)
         return 0;
@@ -535,7 +535,7 @@ double computeTranslation(LaserMeasurement sonars)
         return min(500, min_sonar_front - 200);
 }
 
-double computeGoalSeek(double goal_angle)
+double MainWindow::computeGoalSeek(double goal_angle)
 {
     if (abs(goal_angle) < M_PI / 10)
         return 0;
@@ -543,16 +543,19 @@ double computeGoalSeek(double goal_angle)
         return goal_angle * 100;
 }
 
-double minRange(LaserMeasurement sonars, double start, double begin) {}
+double MainWindow::minRange(LaserMeasurement sonars, double start, double end)
+{
+    return 10;
+}
 
-bool obstacleInWay(double angle_goal, LaserMeasurement sonars)
+bool MainWindow::obstacleInWay(double angle_goal, LaserMeasurement sonars)
 {
     int min_sonar_value = 0;
     min_sonar_value = minRange(sonars, angle_goal - (M_PI / 4), angle_goal + (M_PI / 4));
-    return (min_sonar_value < 200)
+    return (min_sonar_value < 200);
 }
 
-double computeRWFRot(LaserMeasurement sonars)
+double MainWindow::computeRWFRot(LaserMeasurement sonars)
 {
     double min_left, min_right, desired_turn;
     min_right = minRange(sonars, -M_PI / 2, 0);
@@ -567,7 +570,20 @@ double computeRWFRot(LaserMeasurement sonars)
     }
 }
 
-void bug2(double x_goal_position, double y_goal_position)
+double MainWindow::inToRange(double minimal_value, double current_value, double maximum_value)
+{
+    if (current_value < minimal_value)
+    {
+        current_value = minimal_value;
+    }
+    if (current_value > maximum_value)
+    {
+        current_value = maximum_value;
+    }
+    return current_value;
+}
+
+void MainWindow::bug2(double x_goal_position, double y_goal_position, LaserMeasurement &sonars)
 {
     bool at_goal = false;
     while (!at_goal)
@@ -586,18 +602,18 @@ void bug2(double x_goal_position, double y_goal_position)
         }
         else
         {
-            speed = computeTranslation(sonar);
-            if (robot_state == State.GOALSEEK)
+            speed = computeTranslation(sonars);
+            if (robot_state == GOALSEEK)
             {
                 rotation_speed = computeGoalSeek(goal_angle);
                 if (obstacleInWay(goal_angle, sonars))
-                    robot_state = State.WALLFOLLOW;
+                    robot_state = WALLFOLLOW;
             }
-            if (robot_state == State.WALLFOLLOW)
+            if (robot_state == WALLFOLLOW)
             {
                 rotation_speed = computeRWFRot(sonars);
                 if (!obstacleInWay(goal_angle, sonars))
-                    robot_state = State.GOALSEEK;
+                    robot_state = GOALSEEK;
             }
         }
     }
