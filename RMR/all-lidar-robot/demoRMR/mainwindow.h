@@ -77,6 +77,7 @@ public:
     double computeTranslation(LaserMeasurement sonars);
     double computeGoalSeek(double goal_angle);
     double inToRange(double minimal_value, double current_value, double maximum_value);
+    double min(double n1, double n2);
 
 private slots:
     void on_pushButton_9_clicked();
@@ -124,6 +125,7 @@ private:
     bool mapping = true;
     bool nav = false;
     State robot_state;
+    static constexpr double at_goal_threshold = 0.2;
 public slots:
     void setUiValues(double robotX, double robotY, double robotFi);
 signals:

@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 {
 
     // tu je napevno nastavena ip. treba zmenit na to co ste si zadali do text boxu alebo nejaku inu pevnu. co bude spravna
-    ipaddress = "127.0.0.1"; //"192.168.1.15"; // 192.168.1.11 127.0.0.1
+    ipaddress = "192.168.1.15"; //"192.168.1.15"; // 192.168.1.11 127.0.0.1
     //  cap.open("http://192.168.1.11:8000/stream.mjpg");
     ui->setupUi(this);
     datacounter = 0;
@@ -248,7 +248,7 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
 
             if (copyOfLaserData.Data[i].scanDistance > 145)
             {
-                double scan_distance = copyOfLaserData.Data[i].scanDistance / 5000;
+                double scan_distance = copyOfLaserData.Data[i].scanDistance / 10000;
                 int point_y = -(current_y + scan_distance * sin((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
                 int point_x = (current_x + scan_distance * cos((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
                 created_map[point_x][point_y] = 1;
@@ -535,6 +535,14 @@ double MainWindow::computeTranslation(LaserMeasurement sonars)
         return min(500, min_sonar_front - 200);
 }
 
+double MainWindow::min(double n1, double n2)
+{
+    if (n1 > n2)
+        return n2;
+    else
+        return n1;
+}
+
 double MainWindow::computeGoalSeek(double goal_angle)
 {
     if (abs(goal_angle) < M_PI / 10)
@@ -565,7 +573,7 @@ double MainWindow::computeRWFRot(LaserMeasurement sonars)
     else
     {
         desired_turn = (400 - min_right) * 2;
-        desired_turn = intorange(-400, desired_turn, 400);
+        desired_turn = inToRange(-400, desired_turn, 400);
         return desired_turn;
     }
 }
@@ -591,7 +599,6 @@ void MainWindow::bug2(double x_goal_position, double y_goal_position, LaserMeasu
         double distance_to_goal = getDistance(current_x, current_y, x_goal_position, y_goal_position);
         double goal_angle = atan2(y_goal_position - current_y, x_goal_position - current_x);
         // ADD GOAL THRESHOLD AS A CONSTANT VARIABLE, NOW I AM DOING IT HERE
-        const double at_goal_threshold = 0.2;
         if (distance_to_goal < at_goal_threshold)
         {
             std::cout << "At goal" << std::endl;
