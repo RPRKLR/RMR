@@ -31,7 +31,6 @@ typedef struct
 {
     double x;
     double y;
-    double distance;
 } Point2d;
 
 enum State
@@ -50,6 +49,7 @@ public:
     bool useCamera1;
     //  cv::VideoCapture cap;
     int created_map[500][500];
+    int path_finding_map[150][150];
     TMapArea map;
     int actIndex;
     //    cv::Mat frame[3];
@@ -78,6 +78,8 @@ public:
     double inToRange(double minimal_value, double current_value, double maximum_value);
     double min(double n1, double n2);
     void readMap();
+    int findPath(Point2d start_position);
+    void correctMap();
 
 private slots:
     void on_pushButton_9_clicked();
@@ -94,13 +96,18 @@ private slots:
 
     void on_pushButton_clicked();
 
+
     void getNewFrame();
 
-    double calculateEuclidDistance(Point2d point1, Point2d point2);
-    Point2d selectDirection(Point2d starting_point, Point2d goal_point, Point2d left_point, Point2d right_point);
+//    double calculateEuclidDistance(Point2d point1, Point2d point2);
+//    Point2d selectDirection(Point2d starting_point, Point2d goal_point, Point2d left_point, Point2d right_point);
     //    std::shared_ptr<Point2d> findObstacleEnd(int x, int y, std::shared_ptr<std::shared_ptr<int>> map, int dimension, int direction);
     //    std::shared_ptr<std::shared_ptr<Point2d>> checkColision(Point2d start_point, std::shared_ptr<std::shared_ptr<int>> map, int dimension, int range);
     //    void task2();
+
+    void on_pushButton_10_clicked();
+
+    void on_pushButton_11_clicked();
 
 private:
     //--skuste tu nic nevymazat... pridavajte co chcete, ale pri odoberani by sa mohol stat nejaky drobny problem, co bude vyhadzovat chyby
@@ -126,7 +133,6 @@ private:
     bool nav = false;
     State robot_state;
     static constexpr double at_goal_threshold = 0.2;
-
     int pole[100][2];
 public slots:
     void setUiValues(double robotX, double robotY, double robotFi);

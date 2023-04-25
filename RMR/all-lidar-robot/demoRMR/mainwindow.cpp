@@ -248,9 +248,9 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
 
             if (copyOfLaserData.Data[i].scanDistance > 145)
             {
-                double scan_distance = copyOfLaserData.Data[i].scanDistance / 10000;
-                int point_y = -(current_y + scan_distance * sin((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
-                int point_x = (current_x + scan_distance * cos((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
+                double scan_distance = copyOfLaserData.Data[i].scanDistance / 5000;
+                int point_y = -(current_y + scan_distance * sin((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 9 * 500 + 500 / 2 - 1;
+                int point_x = (current_x + scan_distance * cos((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 9 * 500 + 500 / 2 - 1;
                 created_map[point_x][point_y] = 1;
             }
         }
@@ -372,85 +372,6 @@ void MainWindow::goRotate()
     robot.setRotationSpeed(rotation_speed);
 }
 
-double MainWindow::calculateEuclidDistance(Point2d point1, Point2d point2)
-{
-    // Calculating Euclid distance between two points
-    return sqrt(pow(point2.x - point1.x, 2) + pow(point2.y - point1.y, 2));
-}
-
-Point2d MainWindow::selectDirection(Point2d starting_point, Point2d goal_point, Point2d left_point, Point2d right_point)
-{
-    // Calculate the euclid distance from the start point to the left obstacle corner, and from the left obstacle corner to the goal point
-    double distance1 = calculateEuclidDistance(starting_point, left_point) + calculateEuclidDistance(left_point, goal_point);
-    // Same just with the right obstacle corner
-    double distance2 = calculateEuclidDistance(starting_point, right_point) + calculateEuclidDistance(right_point, goal_point);
-
-    if (distance1 < distance2)
-    {
-        left_point.distance = distance1;
-        return left_point;
-    }
-    else
-    {
-        right_point.distance = distance2;
-        return right_point;
-    }
-}
-// std::shared_ptr<Point2d> MainWindow::findObstacleEnd(int x, int y, std::shared_ptr<std::shared_ptr<int>> map, int dimension, int direction)
-//{
-//    int i = y;
-//    if (direction == 1) // checking to the right
-//    {
-//        while (map[x][i] == 1)
-//        {
-//            i++;
-//            if (i > dimension)
-//            {
-//                return NULL;
-//            }
-//        }
-//    }
-//    else if (direction == -1)
-//    {
-//        while(map[x][i] == 1)
-//        {
-//            i--;
-//            if (i < 0)
-//            {
-//                return NULL;
-//            }
-//        }
-//    }
-//    std::shared_ptr<Point2d> point = std::make_shared<Point2d>();
-//    point->y = i;
-//    point->x = x;
-//    return point;
-//}
-// std::shared_ptr<std::shared_ptr<Point2d>> MainWindow::checkColision(Point2d start_point, std::shared_ptr<std::shared_ptr<int>> map, int dimension, int range)
-//{
-//    int x = start_point.x + range;
-//    int y = start_point.y;
-//    if (x < dimension && map[x][y] == 1)
-//    {
-//        std::cout << "Colision in front of the robot. Finding end of the obstacle\n";
-//        std::shared_ptr<Point2d> point1 findObstacleEnd(x, y, map, dimension, -1);
-//        std::shared_ptr<Point2d> point2 fintObstacleEnd(x, y, map, dimension, 1);
-//        std::shared_ptr<std::shared_ptr<Point2d>> array = std::make_shared<std::make_shared<Point2d>>()[2];
-//        array[0] = point1;
-//        array[1] = point2;
-//        return array;
-//    }
-//    else
-//    {
-//        std::cout << "No colision was detected";
-//        return NULL;
-//    }
-//}
-// void MainWindow::task2()
-//{
-
-//}
-
 void MainWindow::readMap()
 {
     float x1, x2, y1, y2;
@@ -481,17 +402,20 @@ void MainWindow::readMap()
                 y2 = map.wall.points[i].point.y;
             }
         }
-
-        for (int j = x1; i <= x2; ++j)
+        x1 = (int)(x1 / 4);
+        x2 = (int)(x2 / 4);
+        y1 = (int)(y1 / 4);
+        y2 = (int)(y2 / 4);
+        for (int j = x1; j <= x2; ++j)
         {
-            for (int k = y1; y1 <= y2; ++k)
+            for (int k = y1; k <= y2; ++k)
             {
-                created_map[i][j] = 1;
+                path_finding_map[j][k] = 1;
             }
         }
     }
-    for (int i = 0; i < 109; ++k)
-        created_map[0][k] = 1;
+    for (int i = 0; i < 109; ++i)
+        path_finding_map[0][i] = 1;
 
     // Obstacles
     for (int i = 0; i < map.numofObjects; ++i)
@@ -526,10 +450,10 @@ void MainWindow::readMap()
             y1 = (int)(y1 / 4);
             y2 = (int)(y2 / 4);
 
-            for (int k = x1; i <= x2; ++k)
+            for (int k = x1; k <= x2; ++k)
             {
                 for (int l = y1; l <= y2; ++l)
-                    created_map[k][l] = 1;
+                    path_finding_map[k][l] = 1;
             }
         }
     }
@@ -537,113 +461,113 @@ void MainWindow::readMap()
 
 void MainWindow::floodAlgorithm(Point2d end_point)
 {
-    created_map[int(end_point.x)][int(end_point.y)];
-    bool is_there;
-    int map_constant = 500;
+    path_finding_map[int(end_point.x)][int(end_point.y)] = 2;
+    bool is_there = false;
+    int map_constant = 150;
     while (1)
     {
+        is_there = false;
         for (int i = 0; i < map_constant; ++i)
         {
             for (int j = 0; j < map_constant; ++j)
             {
-                if ((created_map[i][j] != 0) && (created_map[i][j] != 1) && created_map[i][j] != 900)
+                if ((path_finding_map[i][j] != 0) && (path_finding_map[i][j] != 1) && path_finding_map[i][j] != 900)
                 {
                     if (i - 1 >= 0)
                     {
-                        if (created_map[i - 1][j] == 0)
+                        if (path_finding_map[i - 1][j] == 0)
                         {
-                            created_map[i - 1][j] = created_map[i][j] + 1;
+                            path_finding_map[i - 1][j] = path_finding_map[i][j] + 1;
                             is_there = true;
                         }
                     }
                     if (i + 1 < map_constant)
                     {
-                        if (created_map[i + 1][j] == 0)
+                        if (path_finding_map[i + 1][j] == 0)
                         {
-                            created_map[i + 1][j] = created_map[i][j] + 1;
+                            path_finding_map[i + 1][j] = path_finding_map[i][j] + 1;
                             is_there = true;
                         }
                     }
                     if (j - 1 >= 0)
                     {
-                        if (created_map[i][j - 1] == 0)
+                        if (path_finding_map[i][j - 1] == 0)
                         {
-                            created_map[i][j - 1] = created_map[i][j] + 1;
+                            path_finding_map[i][j - 1] = path_finding_map[i][j] + 1;
                             is_there = true;
                         }
                     }
                     if (j + 1 < map_constant)
                     {
-                        if (created_map[i][j + 1] == 0)
+                        if (path_finding_map[i][j + 1] == 0)
                         {
-                            created_map[i][j + 1] = created_map[i][j] + 1;
+                            path_finding_map[i][j + 1] = path_finding_map[i][j] + 1;
                             is_there = true;
                         }
                     }
                 }
             }
-            if (is_there == false)
-            {
-                break;
-            }
+        }
+        if (is_there == false)
+        {
+            break;
         }
     }
 }
 
 int MainWindow::findPath(Point2d start_position)
 {
-    int x = start_position.x, y = stable_partition.y;
-    int t = 0;
-    while (created_map[x][y] != 2)
+    int i = start_position.x, j = start_position.y, k, t = 0;
+    while (path_finding_map[i][j] != 2)
     {
-        if (created_map[x][y] == (created_map[x + 1][y]) + 1)
+        if (path_finding_map[i][j] == (path_finding_map[i + 1][j]) + 1)
         {
-            int temp = start_position.x;
-            while (created_map[temp][y] == (created_map[temp + 1][y]) + 1)
+            k = i;
+            while (path_finding_map[k][j] == (path_finding_map[k + 1][j]) + 1)
             {
-                temp += 1;
+                k = k + 1;
             }
-            pole[t++][0] = temp;
-            pole[t - 1][1] = y;
-            x = temp;
+            pole[t++][0] = k;
+            pole[t - 1][1] = j;
+            i = k;
         }
-        else if (created_map[x][y] == (created_map[x - 1][y]) + 1)
+        else if (path_finding_map[i][j] == (path_finding_map[i - 1][j]) + 1)
         {
-            int temp = start_position.x;
-            while (created_map[temp][y] == (created_map[temp + 1][y]) + 1)
+            k = i;
+            while (path_finding_map[k][j] == (path_finding_map[k - 1][j]) + 1)
             {
-                temp -= 1;
+                k = k - 1;
             }
-            pole[t++][0] = temp;
-            pole[t - 1][1] = y;
-            x = temp;
+            pole[t++][0] = k;
+            pole[t - 1][1] = j;
+            i = k;
         }
-        else if (created_map[x][y] == (created_map[x][y - 1]) + 1)
+        else if (path_finding_map[i][j] == (path_finding_map[i][j - 1]) + 1)
         {
-            int temp = start_position.y;
-            while (created_map[temp][y] == (created_map[temp + 1][y]) + 1)
+            k = j;
+            while (path_finding_map[i][k] == (path_finding_map[i][k - 1]) + 1)
             {
-                temp -= 1;
+                k = k - 1;
             }
-            pole[t++][0] = x;
-            pole[t - 1][1] = temp;
-            y = temp;
+            pole[t++][0] = k;
+            pole[t - 1][1] = k;
+            j = k;
         }
-        else if (created_map[x][y] == (created_map[x][y + 1]) + 1)
+        else if (path_finding_map[i][j] == (path_finding_map[i][j + 1]) + 1)
         {
-            int temp = start_position.y;
-            while (created_map[temp][y] == (created_map[temp + 1][y]) + 1)
+            k = j;
+            while (path_finding_map[i][k] == (path_finding_map[i][k + 1]) + 1)
             {
-                temp += 1;
+                k = k + 1;
             }
-            pole[t++][0] = x;
-            pole[t - 1][1] = temp;
-            y = temp;
+            pole[t++][0] = i;
+            pole[t - 1][1] = k;
+            j = k;
         }
         else
             break;
     }
-    std::cout << created_map[x][y] << std::endl;
+    printf("\n%d", path_finding_map[i][j]);
 
     return t;
 }
@@ -654,7 +578,7 @@ void MainWindow::correctMap()
     {
         for (int j = 4; j < 35; ++j)
         {
-            created_map[i][j] = 0;
+            path_finding_map[i][j] = 0;
         }
     }
 
@@ -662,32 +586,32 @@ void MainWindow::correctMap()
     {
         for (int j = 0; j < 150; ++j)
         {
-            if (created_map[i][j] == 1)
+            if (path_finding_map[i][j] == 1)
             {
-                if ((j + 1) < 149 && created_map[i][j + 1] == 0)
-                    created_map[i][j + 1] = 900;
-                if ((j + 2) < 149 && created_map[i][j + 2] == 0)
-                    created_map[i][j + 2] = 900;
-                if ((j + 3) < 149 && created_map[i][j + 3] == 0)
-                    created_map[i][j + 3] = 900;
-                if ((j - 1) > 0 && created_map[i][j - 1] == 0)
-                    created_map[i][j - 1] = 900;
-                if ((j - 2) > 0 && created_map[i][j - 2] == 0)
-                    created_map[i][j - 2] = 900;
-                if ((j - 3) > 0 && created_map[i][j - 3] == 0)
-                    created_map[i][j - 3] = 900;
-                if ((i + 1) < 149 && created_map[i + 1][j] == 0)
-                    created_map[i + 1][j] = 900;
-                if ((i + 2) < 149 && created_map[i + 2][j] == 0)
-                    created_map[i + 2][j] = 900;
-                if ((i + 3) < 149 && created_map[i + 3][j] == 0)
-                    created_map[i + 3][j] = 900;
-                if ((i - 1) > 0 && created_map[i - 1][j] == 0)
-                    created_map[i - 1][j] = 900;
-                if ((i - 2) > 0 && created_map[i - 2][j] == 0)
-                    created_map[i - 2][j] = 900;
-                if ((i - 3) > 0 && created_map[i - 3][j] == 0)
-                    created_map[i - 3][j] = 900;
+                if ((j + 1) < 149 && path_finding_map[i][j + 1] == 0)
+                    path_finding_map[i][j + 1] = 900;
+                if ((j + 2) < 149 && path_finding_map[i][j + 2] == 0)
+                    path_finding_map[i][j + 2] = 900;
+                if ((j + 3) < 149 && path_finding_map[i][j + 3] == 0)
+                    path_finding_map[i][j + 3] = 900;
+                if ((j - 1) > 0 && path_finding_map[i][j - 1] == 0)
+                    path_finding_map[i][j - 1] = 900;
+                if ((j - 2) > 0 && path_finding_map[i][j - 2] == 0)
+                    path_finding_map[i][j - 2] = 900;
+                if ((j - 3) > 0 && path_finding_map[i][j - 3] == 0)
+                    path_finding_map[i][j - 3] = 900;
+                if ((i + 1) < 149 && path_finding_map[i + 1][j] == 0)
+                    path_finding_map[i + 1][j] = 900;
+                if ((i + 2) < 149 && path_finding_map[i + 2][j] == 0)
+                    path_finding_map[i + 2][j] = 900;
+                if ((i + 3) < 149 && path_finding_map[i + 3][j] == 0)
+                    path_finding_map[i + 3][j] = 900;
+                if ((i - 1) > 0 && path_finding_map[i - 1][j] == 0)
+                    path_finding_map[i - 1][j] = 900;
+                if ((i - 2) > 0 && path_finding_map[i - 2][j] == 0)
+                    path_finding_map[i - 2][j] = 900;
+                if ((i - 3) > 0 && path_finding_map[i - 3][j] == 0)
+                    path_finding_map[i - 3][j] = 900;
             }
         }
     }
@@ -701,7 +625,7 @@ void MainWindow::correctMap()
         {
             for (int j = 0; j < 150; ++j)
             {
-                std::string character = std::to_string(created_map[i][j]);
+                std::string character = std::to_string(path_finding_map[i][j]);
                 temp_str += character;
             }
             file << temp_str << std::endl;
@@ -814,5 +738,38 @@ void MainWindow::bug2(double x_goal_position, double y_goal_position, LaserMeasu
                     robot_state = GOALSEEK;
             }
         }
+    }
+}
+
+void MainWindow::on_pushButton_10_clicked()
+{
+
+    Point2d end_point = {10, 92};
+    Point2d start_point = {10, 10};
+    map_loader MapLoader;
+    char filename[65] = "/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/priestor.txt";
+    MapLoader.load_map(filename, map);
+    readMap();
+    correctMap();
+    floodAlgorithm(end_point);
+    int pt = findPath(start_point);
+    printf("%d\n", pt);
+    for (int r = 0; r < pt; r++)
+    {
+        printf("x=%d y=%d\n", pole[r][0], pole[r][1]);
+    }
+}
+
+void MainWindow::on_pushButton_11_clicked()
+{
+    if (mapping == false)
+    {
+        mapping = true;
+        ui->pushButton_11->setText("Turn on mapping");
+    }
+    else if (mapping == true)
+    {
+        mapping = false;
+        ui->pushButton_11->setText("Turn off mapping");
     }
 }
