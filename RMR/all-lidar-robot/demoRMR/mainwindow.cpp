@@ -451,15 +451,100 @@ Point2d MainWindow::selectDirection(Point2d starting_point, Point2d goal_point, 
 
 //}
 
+void MainWindow::readMap()
+{
+    float x1, x2, y1, y2;
+
+    // walls
+    for (int i = 0; i < mapss.wall.numofpoints - 1; ++i)
+    {
+        if (i + 1 < mapss.wall.numofpoints)
+        {
+            if (mapss.wall.points[i].point.x < mapss.wall.points[i + 1].point.x)
+            {
+                x1 = mapss.wall.points[i].point.x;
+                x2 = mapss.wall.points[i + 1].point.x;
+            }
+            else
+            {
+                x1 = mapss.wall.points[i + 1].point.x;
+                x2 = mapss.wall.points[i].point.x;
+            }
+            if (mapss.wall.points[i].point.y < mapss.wall.points[i + 1].point.y)
+            {
+                y1 = mapss.wall.points[i].point.y;
+                y2 = mapss.wall.points[i + 1].point.y;
+            }
+            else
+            {
+                y1 = mapss.wall.points[i + 1].point.y;
+                y2 = mapss.wall.points[i].point.y;
+            }
+        }
+
+        for (int j = x1; i <= x2; ++j)
+        {
+            for (int k = y1; y1 <= y2; ++k)
+            {
+                mapa[i][j] = 1;
+            }
+        }
+    }
+    for (int i = 0; i < 109; ++k)
+        map[0][k] = 1;
+
+    // Obstacles
+    for (int i = 0; i < mapss.numofObjects; ++i)
+    {
+        for (int j = 0; j < mapss.obstacle[i].numofpoints; ++j)
+        {
+            if (j + 1 < mapss.obstacle[i].numofpoints)
+            {
+                if (mapss.obstacle[i].points[j].point.x < mapss.obstacle[i].points[j + 1].point.x)
+                {
+                    x1 = mapss.obstacle[i].points[j].point.x;
+                    x2 = mapss.obstacle[i].points[j + 1].point.x;
+                }
+                else
+                {
+                    x1 = mapss.obstacle[i].points[j + 1].point.x;
+                    x2 = mapss.obstacle[i].points[j].point.x;
+                }
+                if (mapss.obstacle[i].points[j].point.y < mapss.obstacle[i].points[j + 1].point.y)
+                {
+                    y1 = mapss.obstacle[i].points[j].point.y;
+                    y2 = mapss.obstacle[i].points[j + 1].point.y;
+                }
+                else
+                {
+                    y1 = mapss.obstacle[i].points[j + 1].point.y;
+                    y2 = mapss.obstacle[i].points[j].point.y;
+                }
+            }
+            x1 = (int)(x1 / 4);
+            x2 = (int)(x2 / 4);
+            y1 = (int)(y1 / 4);
+            y2 = (int)(y2 / 4);
+
+            for (int k = x1; i <= x2; ++k)
+            {
+                for (int l = y1; l <= y2; ++l)
+                    map[k][l] = 1;
+            }
+        }
+    }
+}
+
 void MainWindow::floodAlgorithm(Point2d end_point)
 {
     created_map[int(end_point.x)][int(end_point.y)];
     bool is_there;
+    int map_constant = 500;
     while (1)
     {
-        for (int i = 0; i < 500; ++i)
+        for (int i = 0; i < map_constant; ++i)
         {
-            for (int j = 0; j < 500; ++j)
+            for (int j = 0; j < map_constant; ++j)
             {
                 if ((created_map[i][j] != 0) && (created_map[i][j] != 1) && created_map[i][j] != 900)
                 {
@@ -471,7 +556,7 @@ void MainWindow::floodAlgorithm(Point2d end_point)
                             is_there = true;
                         }
                     }
-                    if (i + 1 < 500)
+                    if (i + 1 < map_constant)
                     {
                         if (created_map[i + 1][j] == 0)
                         {
@@ -487,7 +572,7 @@ void MainWindow::floodAlgorithm(Point2d end_point)
                             is_there = true;
                         }
                     }
-                    if (j + 1 < 500)
+                    if (j + 1 < map_constant)
                     {
                         if (created_map[i][j + 1] == 0)
                         {
