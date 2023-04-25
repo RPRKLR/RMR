@@ -67,7 +67,6 @@ public:
     void laserprocess();
     double regulateSpeed(double error_distance);
     double regulateRotation(double error_angle);
-    int findPath(int map[500][500], Point2d start_position);
     void floodAlgorithm(Point2d end_point);
     void bug2(double x_goal_position, double y_goal_position, LaserMeasurement &sonars);
     double computeRWFRot(LaserMeasurement sonars);
@@ -78,6 +77,7 @@ public:
     double computeGoalSeek(double goal_angle);
     double inToRange(double minimal_value, double current_value, double maximum_value);
     double min(double n1, double n2);
+    void readMap();
 
 private slots:
     void on_pushButton_9_clicked();
@@ -126,6 +126,8 @@ private:
     bool nav = false;
     State robot_state;
     static constexpr double at_goal_threshold = 0.2;
+
+    int pole[100][2];
 public slots:
     void setUiValues(double robotX, double robotY, double robotFi);
 signals:

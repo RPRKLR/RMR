@@ -7,7 +7,7 @@
 #include <fstream>
 #include <stdlib.h>
 #include <stdio.h>
-// #include "map_loader.h"
+#include "map_loader.h"
 
 /// TOTO JE DEMO PROGRAM...AK SI HO NASIEL NA PC V LABAKU NEPREPISUJ NIC,ALE SKOPIRUJ SI MA NIEKAM DO INEHO FOLDERA
 ///  AK HO MAS Z GITU A ROBIS NA LABAKOVOM PC, TAK SI HO VLOZ DO FOLDERA KTORY JE JASNE ODLISITELNY OD TVOJICH KOLEGOV
@@ -456,29 +456,29 @@ void MainWindow::readMap()
     float x1, x2, y1, y2;
 
     // walls
-    for (int i = 0; i < mapss.wall.numofpoints - 1; ++i)
+    for (int i = 0; i < map.wall.numofpoints - 1; ++i)
     {
-        if (i + 1 < mapss.wall.numofpoints)
+        if (i + 1 < map.wall.numofpoints)
         {
-            if (mapss.wall.points[i].point.x < mapss.wall.points[i + 1].point.x)
+            if (map.wall.points[i].point.x < map.wall.points[i + 1].point.x)
             {
-                x1 = mapss.wall.points[i].point.x;
-                x2 = mapss.wall.points[i + 1].point.x;
+                x1 = map.wall.points[i].point.x;
+                x2 = map.wall.points[i + 1].point.x;
             }
             else
             {
-                x1 = mapss.wall.points[i + 1].point.x;
-                x2 = mapss.wall.points[i].point.x;
+                x1 = map.wall.points[i + 1].point.x;
+                x2 = map.wall.points[i].point.x;
             }
-            if (mapss.wall.points[i].point.y < mapss.wall.points[i + 1].point.y)
+            if (map.wall.points[i].point.y < map.wall.points[i + 1].point.y)
             {
-                y1 = mapss.wall.points[i].point.y;
-                y2 = mapss.wall.points[i + 1].point.y;
+                y1 = map.wall.points[i].point.y;
+                y2 = map.wall.points[i + 1].point.y;
             }
             else
             {
-                y1 = mapss.wall.points[i + 1].point.y;
-                y2 = mapss.wall.points[i].point.y;
+                y1 = map.wall.points[i + 1].point.y;
+                y2 = map.wall.points[i].point.y;
             }
         }
 
@@ -486,39 +486,39 @@ void MainWindow::readMap()
         {
             for (int k = y1; y1 <= y2; ++k)
             {
-                mapa[i][j] = 1;
+                created_map[i][j] = 1;
             }
         }
     }
     for (int i = 0; i < 109; ++k)
-        map[0][k] = 1;
+        created_map[0][k] = 1;
 
     // Obstacles
-    for (int i = 0; i < mapss.numofObjects; ++i)
+    for (int i = 0; i < map.numofObjects; ++i)
     {
-        for (int j = 0; j < mapss.obstacle[i].numofpoints; ++j)
+        for (int j = 0; j < map.obstacle[i].numofpoints; ++j)
         {
-            if (j + 1 < mapss.obstacle[i].numofpoints)
+            if (j + 1 < map.obstacle[i].numofpoints)
             {
-                if (mapss.obstacle[i].points[j].point.x < mapss.obstacle[i].points[j + 1].point.x)
+                if (map.obstacle[i].points[j].point.x < map.obstacle[i].points[j + 1].point.x)
                 {
-                    x1 = mapss.obstacle[i].points[j].point.x;
-                    x2 = mapss.obstacle[i].points[j + 1].point.x;
+                    x1 = map.obstacle[i].points[j].point.x;
+                    x2 = map.obstacle[i].points[j + 1].point.x;
                 }
                 else
                 {
-                    x1 = mapss.obstacle[i].points[j + 1].point.x;
-                    x2 = mapss.obstacle[i].points[j].point.x;
+                    x1 = map.obstacle[i].points[j + 1].point.x;
+                    x2 = map.obstacle[i].points[j].point.x;
                 }
-                if (mapss.obstacle[i].points[j].point.y < mapss.obstacle[i].points[j + 1].point.y)
+                if (map.obstacle[i].points[j].point.y < map.obstacle[i].points[j + 1].point.y)
                 {
-                    y1 = mapss.obstacle[i].points[j].point.y;
-                    y2 = mapss.obstacle[i].points[j + 1].point.y;
+                    y1 = map.obstacle[i].points[j].point.y;
+                    y2 = map.obstacle[i].points[j + 1].point.y;
                 }
                 else
                 {
-                    y1 = mapss.obstacle[i].points[j + 1].point.y;
-                    y2 = mapss.obstacle[i].points[j].point.y;
+                    y1 = map.obstacle[i].points[j + 1].point.y;
+                    y2 = map.obstacle[i].points[j].point.y;
                 }
             }
             x1 = (int)(x1 / 4);
@@ -529,7 +529,7 @@ void MainWindow::readMap()
             for (int k = x1; i <= x2; ++k)
             {
                 for (int l = y1; l <= y2; ++l)
-                    map[k][l] = 1;
+                    created_map[k][l] = 1;
             }
         }
     }
@@ -590,20 +590,126 @@ void MainWindow::floodAlgorithm(Point2d end_point)
     }
 }
 
-// int MainWindow::findPath(int map[500][500], Point2d start_position)
-//{
-//     while (map[int(start_position.x)][int(start_position.y)] != 2)
-//     {
-//         if (map[int(start_position.x)][int(start_position.y)] == (map[int(start_position.x) + 1][int(start_position.y)]) + 1)
-//         {
-//             int temp = start_position.x;
-//             while (map[temp][int(start_position.y)] == (map[temp + 1][int(start_position.y)]) + 1)
-//             {
-//                 temp += 1;
-//             }
-//         }
-//     }
-// }
+int MainWindow::findPath(Point2d start_position)
+{
+    int x = start_position.x, y = stable_partition.y;
+    int t = 0;
+    while (created_map[x][y] != 2)
+    {
+        if (created_map[x][y] == (created_map[x + 1][y]) + 1)
+        {
+            int temp = start_position.x;
+            while (created_map[temp][y] == (created_map[temp + 1][y]) + 1)
+            {
+                temp += 1;
+            }
+            pole[t++][0] = temp;
+            pole[t - 1][1] = y;
+            x = temp;
+        }
+        else if (created_map[x][y] == (created_map[x - 1][y]) + 1)
+        {
+            int temp = start_position.x;
+            while (created_map[temp][y] == (created_map[temp + 1][y]) + 1)
+            {
+                temp -= 1;
+            }
+            pole[t++][0] = temp;
+            pole[t - 1][1] = y;
+            x = temp;
+        }
+        else if (created_map[x][y] == (created_map[x][y - 1]) + 1)
+        {
+            int temp = start_position.y;
+            while (created_map[temp][y] == (created_map[temp + 1][y]) + 1)
+            {
+                temp -= 1;
+            }
+            pole[t++][0] = x;
+            pole[t - 1][1] = temp;
+            y = temp;
+        }
+        else if (created_map[x][y] == (created_map[x][y + 1]) + 1)
+        {
+            int temp = start_position.y;
+            while (created_map[temp][y] == (created_map[temp + 1][y]) + 1)
+            {
+                temp += 1;
+            }
+            pole[t++][0] = x;
+            pole[t - 1][1] = temp;
+            y = temp;
+        }
+        else
+            break;
+    }
+    std::cout << created_map[x][y] << std::endl;
+
+    return t;
+}
+
+void MainWindow::correctMap()
+{
+    for (int i = 4; i < 35; ++i)
+    {
+        for (int j = 4; j < 35; ++j)
+        {
+            created_map[i][j] = 0;
+        }
+    }
+
+    for (int i = 0; i < 150; ++i)
+    {
+        for (int j = 0; j < 150; ++j)
+        {
+            if (created_map[i][j] == 1)
+            {
+                if ((j + 1) < 149 && created_map[i][j + 1] == 0)
+                    created_map[i][j + 1] = 900;
+                if ((j + 2) < 149 && created_map[i][j + 2] == 0)
+                    created_map[i][j + 2] = 900;
+                if ((j + 3) < 149 && created_map[i][j + 3] == 0)
+                    created_map[i][j + 3] = 900;
+                if ((j - 1) > 0 && created_map[i][j - 1] == 0)
+                    created_map[i][j - 1] = 900;
+                if ((j - 2) > 0 && created_map[i][j - 2] == 0)
+                    created_map[i][j - 2] = 900;
+                if ((j - 3) > 0 && created_map[i][j - 3] == 0)
+                    created_map[i][j - 3] = 900;
+                if ((i + 1) < 149 && created_map[i + 1][j] == 0)
+                    created_map[i + 1][j] = 900;
+                if ((i + 2) < 149 && created_map[i + 2][j] == 0)
+                    created_map[i + 2][j] = 900;
+                if ((i + 3) < 149 && created_map[i + 3][j] == 0)
+                    created_map[i + 3][j] = 900;
+                if ((i - 1) > 0 && created_map[i - 1][j] == 0)
+                    created_map[i - 1][j] = 900;
+                if ((i - 2) > 0 && created_map[i - 2][j] == 0)
+                    created_map[i - 2][j] = 900;
+                if ((i - 3) > 0 && created_map[i - 3][j] == 0)
+                    created_map[i - 3][j] = 900;
+            }
+        }
+    }
+    // File write implementation here
+    std::string temp_str;
+    std::ofstream file("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/flood.txt");
+    if (file.is_open())
+    {
+
+        for (int i = 0; i < 150; ++i)
+        {
+            for (int j = 0; j < 150; ++j)
+            {
+                std::string character = std::to_string(created_map[i][j]);
+                temp_str += character;
+            }
+            file << temp_str << std::endl;
+            temp_str.clear();
+        }
+        file.close();
+    }
+}
 
 double MainWindow::getDistance(double x_original, double y_original, double x_goal, double y_goal)
 {
