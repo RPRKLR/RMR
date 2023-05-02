@@ -243,37 +243,62 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
     //  ale nic vypoctovo narocne - to iste vlakno ktore cita data z lidaru
     if (rotation_speed == 0 && mapping == true)
     {
-        for (int i = 0; i < copyOfLaserData.numberOfScans; ++i)
+//        FILE *fp;
+//        fp = fopen("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/distances.txt", "w");
+
+        for (int i = 0; i < copyOfLaserData.numberOfScans; i++)
         {
 
-            if (copyOfLaserData.Data[i].scanDistance > 145)
+//            fprintf(fp, "%f\n", copyOfLaserData.Data[i].scanDistance);
+            if (copyOfLaserData.Data[i].scanDistance > 145  && copyOfLaserData.Data[i].scanDistance < 3000 && copyOfLaserData.Data[i].scanDistance > 640 && copyOfLaserData.Data[i].scanDistance < 700)
             {
-                double scan_distance = copyOfLaserData.Data[i].scanDistance / 5000;
-                int point_y = -(current_y + scan_distance * sin((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 9 * 500 + 500 / 2 - 1;
-                int point_x = (current_x + scan_distance * cos((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 9 * 500 + 500 / 2 - 1;
+                double scan_distance = copyOfLaserData.Data[i].scanDistance /1000;
+                int point_y = -(current_y + scan_distance * sin((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
+                int point_x = (current_x + scan_distance * cos((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
                 created_map[point_x][point_y] = 1;
             }
         }
-        std::string temp_str;
-        std::ofstream file("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/map.txt");
-        if (file.is_open())
-        {
 
-            for (int i = 0; i < 500; ++i)
+//        fclose(fp);
+            FILE *fp;
+            int u, v;
+            fp = fopen("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/map.txt", "w");
+            for(u = 0 ; u< 500; u++)
             {
-                for (int j = 0; j < 500; ++j)
+                for(v = 0; v < 500; v++)
                 {
-
-                    std::string character = std::to_string(created_map[i][j]);
-                    if (character != "1")
-                        character = "_";
-                    temp_str += character;
+                    if(created_map[v][u] == 0)
+                        fprintf(fp, "_");
+                    else
+                    fprintf(fp,"%d", created_map[v][u]);
                 }
-                file << temp_str << std::endl;
-                temp_str.clear();
+                if(created_map[v][u] == 0)
+                    fprintf(fp, "_\n");
+                else
+                fprintf(fp,"%d\n", created_map[v][u]);
             }
-            file.close();
-        }
+            fclose(fp);
+//            std::string temp_str;
+//            std::ofstream file("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/map.txt");
+//            if (file.is_open())
+//            {
+
+//                for (int i = 0; i < 500; ++i)
+//                {
+//                    for (int j = 0; j < 500; ++j)
+//                    {
+
+//                        std::string character = std::to_string(created_map[i][j]);
+//                        if (character != "1")
+//                            character = "_";
+//                        temp_str += character;
+//                    }
+//                    file << temp_str << std::endl;
+//                    temp_str.clear();
+//                }
+//                file.close();
+//            }
+
     }
     updateLaserPicture = 1;
     update(); // tento prikaz prinuti prekreslit obrazovku.. zavola sa paintEvent funkcia
@@ -301,8 +326,10 @@ void MainWindow::on_pushButton_9_clicked() // start button
 void MainWindow::on_pushButton_2_clicked() // forward
 {
     // pohyb dopredu
-    robot.setTranslationSpeed(500);
-}
+    for(int i = 0; i< 250 ; i++)
+     {
+    robot.setTranslationSpeed(i);
+}}
 
 void MainWindow::on_pushButton_3_clicked() // back
 {
@@ -311,17 +338,22 @@ void MainWindow::on_pushButton_3_clicked() // back
 
 void MainWindow::on_pushButton_6_clicked() // left
 {
-    robot.setRotationSpeed(3.14159 / 2);
+    rotation_speed = 3.14159 / 4;
+    robot.setRotationSpeed(rotation_speed);
 }
 
 void MainWindow::on_pushButton_5_clicked() // right
 {
-    robot.setRotationSpeed(-3.14159 / 2);
+    rotation_speed = -3.14159 / 4;
+    robot.setRotationSpeed(rotation_speed);
 }
 
 void MainWindow::on_pushButton_4_clicked() // stop
 {
-    robot.setTranslationSpeed(0);
+    speed = 0;
+    robot.setTranslationSpeed(speed);
+    rotation_speed = 0;
+    robot.setRotationSpeed(rotation_speed);
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -762,14 +794,6 @@ void MainWindow::on_pushButton_10_clicked()
 
 void MainWindow::on_pushButton_11_clicked()
 {
-    if (mapping == false)
-    {
-        mapping = true;
-        ui->pushButton_11->setText("Turn on mapping");
-    }
-    else if (mapping == true)
-    {
-        mapping = false;
-        ui->pushButton_11->setText("Turn off mapping");
-    }
+        create_map = true;
+        ui->pushButton_11->setText("Create map");
 }

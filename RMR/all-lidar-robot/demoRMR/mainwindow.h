@@ -134,6 +134,7 @@ private:
     State robot_state;
     static constexpr double at_goal_threshold = 0.2;
     int pole[100][2];
+    bool create_map = false;
 public slots:
     void setUiValues(double robotX, double robotY, double robotFi);
 signals:
