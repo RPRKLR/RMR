@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 {
 
     // tu je napevno nastavena ip. treba zmenit na to co ste si zadali do text boxu alebo nejaku inu pevnu. co bude spravna
-    ipaddress = "192.168.1.15"; //"192.168.1.15"; // 192.168.1.11 127.0.0.1
+    ipaddress = "192.168.1.2";//"192.168.1.15"; //"192.168.1.15"; // 192.168.1.11 127.0.0.1
     //  cap.open("http://192.168.1.11:8000/stream.mjpg");
     ui->setupUi(this);
     datacounter = 0;
@@ -250,8 +250,9 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
         {
 
 //            fprintf(fp, "%f\n", copyOfLaserData.Data[i].scanDistance);
-            if (copyOfLaserData.Data[i].scanDistance > 145  && copyOfLaserData.Data[i].scanDistance < 3000 && copyOfLaserData.Data[i].scanDistance > 640 && copyOfLaserData.Data[i].scanDistance < 700)
+            if (copyOfLaserData.Data[i].scanDistance > 145  && copyOfLaserData.Data[i].scanDistance < 3000)
             {
+//                && copyOfLaserData.Data[i].scanDistance > 640 && copyOfLaserData.Data[i].scanDistance < 700)
                 double scan_distance = copyOfLaserData.Data[i].scanDistance /1000;
                 int point_y = -(current_y + scan_distance * sin((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
                 int point_x = (current_x + scan_distance * cos((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
