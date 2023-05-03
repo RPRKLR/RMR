@@ -40,6 +40,11 @@ enum State
     WALLFOLLOW,
 };
 
+typedef struct
+{
+    std::vector<Point2d> coordinates;
+} Obstacle;
+
 /// toto je trieda s oknom.. ktora sa spusti ked sa spusti aplikacia.. su tu vsetky gombiky a spustania...
 class MainWindow : public QMainWindow
 {
@@ -81,7 +86,7 @@ public:
     int findPath(Point2d start_position);
     void correctMap();
     // change the obstacles;
-    double calculateCost(double x,double y,double theta,Point2d goal_pos,double obstacles);
+    double calculateCost(double x, double y, double theta, Point2d goal_pos, double obstacles);
     void dwa(double x, double y, double theta, double obstacles, Point2d goal_pos, std::vector<double> velocity_samples, std::vector<double> angular_velocity_samples, double max_linear_velocity, double max_angular_velocity, double max_linear_acceleration, double max_angular_acceleration);
 private slots:
     void on_pushButton_9_clicked();
@@ -98,11 +103,10 @@ private slots:
 
     void on_pushButton_clicked();
 
-
     void getNewFrame();
 
-//    double calculateEuclidDistance(Point2d point1, Point2d point2);
-//    Point2d selectDirection(Point2d starting_point, Point2d goal_point, Point2d left_point, Point2d right_point);
+    //    double calculateEuclidDistance(Point2d point1, Point2d point2);
+    //    Point2d selectDirection(Point2d starting_point, Point2d goal_point, Point2d left_point, Point2d right_point);
     //    std::shared_ptr<Point2d> findObstacleEnd(int x, int y, std::shared_ptr<std::shared_ptr<int>> map, int dimension, int direction);
     //    std::shared_ptr<std::shared_ptr<Point2d>> checkColision(Point2d start_point, std::shared_ptr<std::shared_ptr<int>> map, int dimension, int range);
     //    void task2();
@@ -138,13 +142,13 @@ private:
     int pole[100][2];
     bool create_map = false;
     double MAX_LINEAR_VELOCITY = 250;
-    double MAX_ANGULAR_VELOCITY = M_PI/4;
+    double MAX_ANGULAR_VELOCITY = M_PI / 4;
     double MAX_LINEAR_ACCELERATION = 250;
-    double MAX_ANGULAR_ACCELERATION = M_PI/4;
-    std::vector<double> velocity_samples = {25,50,75,100,125,150,175,200,225,250};
-    std::vector<double> angular_velocity_samples = {-M_PI/4, M_PI/4};
+    double MAX_ANGULAR_ACCELERATION = M_PI / 4;
+    std::vector<double> velocity_samples = {25, 50, 75, 100, 125, 150, 175, 200, 225, 250};
+    std::vector<double> angular_velocity_samples = {-M_PI / 4, M_PI / 4};
     double goal_tolerance = 0.1;
-    Point2d goal_pos = {5,5};
+    Point2d goal_pos = {5, 5};
 public slots:
     void setUiValues(double robotX, double robotY, double robotFi);
 signals:

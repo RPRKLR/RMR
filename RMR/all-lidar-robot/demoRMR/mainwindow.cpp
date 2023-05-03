@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 {
 
     // tu je napevno nastavena ip. treba zmenit na to co ste si zadali do text boxu alebo nejaku inu pevnu. co bude spravna
-    ipaddress = "192.168.1.2";//"192.168.1.15"; //"192.168.1.15"; // 192.168.1.11 127.0.0.1
+    ipaddress = "192.168.1.2"; //"192.168.1.15"; //"192.168.1.15"; // 192.168.1.11 127.0.0.1
     //  cap.open("http://192.168.1.11:8000/stream.mjpg");
     ui->setupUi(this);
     datacounter = 0;
@@ -243,63 +243,62 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
     //  ale nic vypoctovo narocne - to iste vlakno ktore cita data z lidaru
     if (rotation_speed == 0 && mapping == true)
     {
-//        FILE *fp;
-//        fp = fopen("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/distances.txt", "w");
+        //        FILE *fp;
+        //        fp = fopen("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/distances.txt", "w");
 
         for (int i = 0; i < copyOfLaserData.numberOfScans; i++)
         {
 
-//            fprintf(fp, "%f\n", copyOfLaserData.Data[i].scanDistance);
-            if (copyOfLaserData.Data[i].scanDistance > 145  && copyOfLaserData.Data[i].scanDistance < 3000)
+            //            fprintf(fp, "%f\n", copyOfLaserData.Data[i].scanDistance);
+            if (copyOfLaserData.Data[i].scanDistance > 145 && copyOfLaserData.Data[i].scanDistance < 3000)
             {
-//                && copyOfLaserData.Data[i].scanDistance > 640 && copyOfLaserData.Data[i].scanDistance < 700)
-                double scan_distance = copyOfLaserData.Data[i].scanDistance /1000;
+                //                && copyOfLaserData.Data[i].scanDistance > 640 && copyOfLaserData.Data[i].scanDistance < 700)
+                double scan_distance = copyOfLaserData.Data[i].scanDistance / 1000;
                 int point_y = -(current_y + scan_distance * sin((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
                 int point_x = (current_x + scan_distance * cos((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
                 created_map[point_x][point_y] = 1;
             }
         }
 
-//        fclose(fp);
-            FILE *fp;
-            int u, v;
-            fp = fopen("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/map.txt", "w");
-            for(u = 0 ; u< 500; u++)
+        //        fclose(fp);
+        FILE *fp;
+        int u, v;
+        fp = fopen("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/map.txt", "w");
+        for (u = 0; u < 500; u++)
+        {
+            for (v = 0; v < 500; v++)
             {
-                for(v = 0; v < 500; v++)
-                {
-                    if(created_map[v][u] == 0)
-                        fprintf(fp, "_");
-                    else
-                    fprintf(fp,"%d", created_map[v][u]);
-                }
-                if(created_map[v][u] == 0)
-                    fprintf(fp, "_\n");
+                if (created_map[v][u] == 0)
+                    fprintf(fp, "_");
                 else
-                fprintf(fp,"%d\n", created_map[v][u]);
+                    fprintf(fp, "%d", created_map[v][u]);
             }
-            fclose(fp);
-//            std::string temp_str;
-//            std::ofstream file("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/map.txt");
-//            if (file.is_open())
-//            {
+            if (created_map[v][u] == 0)
+                fprintf(fp, "_\n");
+            else
+                fprintf(fp, "%d\n", created_map[v][u]);
+        }
+        fclose(fp);
+        //            std::string temp_str;
+        //            std::ofstream file("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/map.txt");
+        //            if (file.is_open())
+        //            {
 
-//                for (int i = 0; i < 500; ++i)
-//                {
-//                    for (int j = 0; j < 500; ++j)
-//                    {
+        //                for (int i = 0; i < 500; ++i)
+        //                {
+        //                    for (int j = 0; j < 500; ++j)
+        //                    {
 
-//                        std::string character = std::to_string(created_map[i][j]);
-//                        if (character != "1")
-//                            character = "_";
-//                        temp_str += character;
-//                    }
-//                    file << temp_str << std::endl;
-//                    temp_str.clear();
-//                }
-//                file.close();
-//            }
-
+        //                        std::string character = std::to_string(created_map[i][j]);
+        //                        if (character != "1")
+        //                            character = "_";
+        //                        temp_str += character;
+        //                    }
+        //                    file << temp_str << std::endl;
+        //                    temp_str.clear();
+        //                }
+        //                file.close();
+        //            }
     }
     updateLaserPicture = 1;
     update(); // tento prikaz prinuti prekreslit obrazovku.. zavola sa paintEvent funkcia
@@ -327,10 +326,11 @@ void MainWindow::on_pushButton_9_clicked() // start button
 void MainWindow::on_pushButton_2_clicked() // forward
 {
     // pohyb dopredu
-    for(int i = 0; i< 250 ; i++)
-     {
-    robot.setTranslationSpeed(i);
-}}
+    for (int i = 0; i < 250; i++)
+    {
+        robot.setTranslationSpeed(i);
+    }
+}
 
 void MainWindow::on_pushButton_3_clicked() // back
 {
@@ -795,31 +795,29 @@ void MainWindow::on_pushButton_10_clicked()
 
 void MainWindow::on_pushButton_11_clicked()
 {
-        create_map = true;
-        ui->pushButton_11->setText("Create map");
+    create_map = true;
+    ui->pushButton_11->setText("Create map");
 }
 
-double MainWindow::calculateCost(double x,double y,double theta,Point2d goal_pos,double obstacles)
+double MainWindow::calculateCost(double x, double y, double theta, Point2d goal_pos, std::vector<Obstacle> obstacles)
 {
-    double distance_to_goal = sqrt(pow(current_x - goal_pos.x, 2) + pow(current_y - goal_pos.y, 2));
+    double distance_to_goal = sqrt(pow(x - goal_pos.x, 2) + pow(y - goal_pos.y, 2));
     double obstacle_costs = 0;
-    for (int i = 0; i < obstacles; ++i)
+    for (int i = 0; i < obstacles.size(); ++i)
     {
-
     }
-return distance_to_goal + obstacle_costs;
+    return distance_to_goal + obstacle_costs;
 }
-void MainWindow::dwa(double x, double y, double theta, double obstacles, Point2d goal_pos, std::vector<double> velocity_samples, std::vector<double> angular_velocity_samples, double max_linear_velocity, double max_angular_velocity, double max_linear_acceleration, double max_angular_acceleration)
+void MainWindow::dwa(double x, double y, double theta, std::vector<Obstacle> obstacles, Point2d goal_pos, std::vector<double> velocity_samples, std::vector<double> angular_velocity_samples, double max_linear_velocity, double max_angular_velocity, double max_linear_acceleration, double max_angular_acceleration)
 {
     double best_v = 0, best_w = 0, best_cost = INFINITY;
-    for(int i = 0 ; i < velocity_samples.size(); i++)
+    for (int i = 0; i < velocity_samples.size(); i++)
     {
         for (int j = 0; j < angular_velocity_samples.size(); ++j)
         {
             double cost = calculateCost(x, y, theta, goal_pos, obstacles);
 
-
-            if( cost < best_cost)
+            if (cost < best_cost)
             {
                 best_v = velocity_samples.at(i);
                 best_w = angular_velocity_samples.at(j);
