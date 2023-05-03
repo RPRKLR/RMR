@@ -80,7 +80,9 @@ public:
     void readMap();
     int findPath(Point2d start_position);
     void correctMap();
-
+    // change the obstacles;
+    double calculateCost(double x,double y,double theta,Point2d goal_pos,double obstacles);
+    void dwa(double x, double y, double theta, double obstacles, Point2d goal_pos, std::vector<double> velocity_samples, std::vector<double> angular_velocity_samples, double max_linear_velocity, double max_angular_velocity, double max_linear_acceleration, double max_angular_acceleration);
 private slots:
     void on_pushButton_9_clicked();
 
@@ -135,6 +137,14 @@ private:
     static constexpr double at_goal_threshold = 0.2;
     int pole[100][2];
     bool create_map = false;
+    double MAX_LINEAR_VELOCITY = 250;
+    double MAX_ANGULAR_VELOCITY = M_PI/4;
+    double MAX_LINEAR_ACCELERATION = 250;
+    double MAX_ANGULAR_ACCELERATION = M_PI/4;
+    std::vector<double> velocity_samples = {25,50,75,100,125,150,175,200,225,250};
+    std::vector<double> angular_velocity_samples = {-M_PI/4, M_PI/4};
+    double goal_tolerance = 0.1;
+    Point2d goal_pos = {5,5};
 public slots:
     void setUiValues(double robotX, double robotY, double robotFi);
 signals:

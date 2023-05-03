@@ -798,3 +798,33 @@ void MainWindow::on_pushButton_11_clicked()
         create_map = true;
         ui->pushButton_11->setText("Create map");
 }
+
+double MainWindow::calculateCost(double x,double y,double theta,Point2d goal_pos,double obstacles)
+{
+    double distance_to_goal = sqrt(pow(current_x - goal_pos.x, 2) + pow(current_y - goal_pos.y, 2));
+    double obstacle_costs = 0;
+    for (int i = 0; i < obstacles; ++i)
+    {
+
+    }
+return distance_to_goal + obstacle_costs;
+}
+void MainWindow::dwa(double x, double y, double theta, double obstacles, Point2d goal_pos, std::vector<double> velocity_samples, std::vector<double> angular_velocity_samples, double max_linear_velocity, double max_angular_velocity, double max_linear_acceleration, double max_angular_acceleration)
+{
+    double best_v = 0, best_w = 0, best_cost = INFINITY;
+    for(int i = 0 ; i < velocity_samples.size(); i++)
+    {
+        for (int j = 0; j < angular_velocity_samples.size(); ++j)
+        {
+            double cost = calculateCost(x, y, theta, goal_pos, obstacles);
+
+
+            if( cost < best_cost)
+            {
+                best_v = velocity_samples.at(i);
+                best_w = angular_velocity_samples.at(j);
+                best_cost = cost;
+            }
+        }
+    }
+}
