@@ -42,8 +42,16 @@ enum State
 
 typedef struct
 {
-    std::vector<Point2d> coordinates;
+    Point2d coordinate;
 } Obstacle;
+
+typedef struct
+{
+    Point2d position;
+    double theta;
+    double v;
+    double w;
+} RobotState;
 
 /// toto je trieda s oknom.. ktora sa spusti ked sa spusti aplikacia.. su tu vsetky gombiky a spustania...
 class MainWindow : public QMainWindow
@@ -85,6 +93,13 @@ public:
     void readMap();
     int findPath(Point2d start_position);
     void correctMap();
+    // dwa TEST
+    double distance(Point2d p1, Point2d p2);
+    double angleDifference(double a1, double a2);
+    double clip(double value, double min_value, double max_value);
+    std::vector<RobotState> generateMotionSamples(double x, double y, double theta, double v, double w);
+    double evaulateTrajectory(double x, double y, double theta, double v, double w, RobotState end_state, Point2d goal_position);
+    RobotState find_best_trajectory(double x, double y, double theta, double v, double w, Point2d goal_position);
     // change the obstacles;
     double calculateCost(double x, double y, double theta, Point2d goal_pos, double obstacles);
     void dwa(double x, double y, double theta, double obstacles, Point2d goal_pos, std::vector<double> velocity_samples, std::vector<double> angular_velocity_samples, double max_linear_velocity, double max_angular_velocity, double max_linear_acceleration, double max_angular_acceleration);
@@ -141,14 +156,19 @@ private:
     static constexpr double at_goal_threshold = 0.2;
     int pole[100][2];
     bool create_map = false;
-    double MAX_LINEAR_VELOCITY = 250;
-    double MAX_ANGULAR_VELOCITY = M_PI / 4;
-    double MAX_LINEAR_ACCELERATION = 250;
-    double MAX_ANGULAR_ACCELERATION = M_PI / 4;
+    const double ROBOT_RADIUS = 0.2;
+    const double MAX_LINEAR_VELOCITY = 250;
+    const double MAX_ANGULAR_VELOCITY = M_PI / 4;
+    const double MAX_LINEAR_ACCELERATION = 250;
+    const double MAX_ANGULAR_ACCELERATION = M_PI / 4;
+    const double GOAL_THRESHOLD = 0.1;
+    const double OBSTACLE_THRESHOLD = ROBOT_RADIUS + 0.1;
+    const double DT = 0.1;
     std::vector<double> velocity_samples = {25, 50, 75, 100, 125, 150, 175, 200, 225, 250};
     std::vector<double> angular_velocity_samples = {-M_PI / 4, M_PI / 4};
     double goal_tolerance = 0.1;
     Point2d goal_pos = {5, 5};
+    std::vector<Obstacle> obstacles;
 public slots:
     void setUiValues(double robotX, double robotY, double robotFi);
 signals:

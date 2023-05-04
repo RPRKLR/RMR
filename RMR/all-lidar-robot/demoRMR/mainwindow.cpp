@@ -241,6 +241,34 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
     memcpy(&copyOfLaserData, &laserData, sizeof(LaserMeasurement));
     // tu mozete robit s datami z lidaru.. napriklad najst prekazky, zapisat do mapy. naplanovat ako sa prekazke vyhnut.
     //  ale nic vypoctovo narocne - to iste vlakno ktore cita data z lidaru
+    // obstacles.clear();
+    for (const auto &laser_scan : copyOfLaserData.Data)
+    {
+        if (laser_scan.scanDistance > 100 && laser_scan.scanDistance < 3000)
+        {
+            Point2d coordinate = {laser_scan.scanDistance * cos(laser_scan.scanAngle),
+                                  laser_scan.scanDistance * sin(laser_scan.scanAngle)};
+            bool found_obstacle = false;
+            for (const auto &obstacle : obstacles)
+            {
+                double dx = obstacle.coordinate.x - coordinate.x;
+                double dy = obstacle.coordinate.y - coordinate.y;
+                double dist = sqrt(dx * dx + dy * dy);
+                if (dist < 0.2)
+                {
+                    found_obstacle = true;
+                    break;
+                }
+            }
+            if (!found_obstacle)
+            {
+                Obstacle obstacle;
+                obstacle.coordinate = coordinate;
+                obstacles.push_back(obstacle);
+            }
+        }
+    }
+
     if (rotation_speed == 0 && mapping == true)
     {
         //        FILE *fp;
@@ -825,4 +853,45 @@ void MainWindow::dwa(double x, double y, double theta, std::vector<Obstacle> obs
             }
         }
     }
+}
+
+double MainWindow::distance(Point2d p1, Point2d p2)
+{
+    double dx = p1.x - p2.x;
+    double dy = p1.y - p2.y;
+    return sqrt(dx * dx + dy * dy);
+}
+
+double MainWindow::angleDifference(double a1, double a2)
+{
+    double diff = a2 - a1;
+    if (diff > M_PI)
+        diff -= 2 * M_PI;
+    else if (diff < -M_PI)
+        diff += 2 * M_PI;
+    return diff;
+}
+
+double MainWindow::clip(double value, double min_value, double max_value)
+{
+    return std::min(std::max(value, min_value), max_value);
+}
+
+std::vector<RobotState> generateMotionSamples(double x, double y, double theta, double v, double w)
+{
+    std::vector<RobotState> samples;
+    for (double linear_velocity = -MAX_LINEAR_VELOCITY; linear_velocity <= MAX_LINEAR_VELOCITY; linear_velocitu += MAX_LINEAR_ACCELERATION * DT)
+    {
+        for (double angular_velocity = -MAX_ANGULAR_VELOCITY; angular_velocity <= MAX_ANGULAR_VELOCITY; angular_velocity += MAX_ANGULAR_ACCELERATION * DT)
+        {
+            RobotState sample_state;
+            sample_state.position.x = x + v * cos(theta) * DT;
+            sample_state.position.y = y + v * sin(theta) * DT;
+            sample_state.theta = theta + w * DT;
+            sample_state.v = clip(v + linear_velocity * DT, -MAX_LINEAR_VELOCITY, MAX_LINEAR_VELOCITY);
+            sample_state.w = clip(w + angular_velocity * DT, -MAX_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY);
+            samples.push_back(sample_state);
+        }
+    }
+    return samples;
 }
