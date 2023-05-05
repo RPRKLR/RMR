@@ -895,3 +895,39 @@ std::vector<RobotState> generateMotionSamples(double x, double y, double theta, 
     }
     return samples;
 }
+
+double MainWindow::evaluateTrajectory(double x, double y, double theta, double v, double w, RobotState end_state, Point2d goal_position)
+{
+    double distance_to_goal = distance(end_state.position, goal_position);
+    double distance_penalty = 1.0f / (1.0f + distance_to_goal);
+
+    double obstacle_penalty = 1.0f;
+    for (const auto &obstacle : obstacles)
+    {
+        double obstacle_distance = distance(end_state.position, obstacle.coordinate);
+        if (obstacle_distance < OBSTACLE_THRESHOLD)
+        {
+            obstacle_penalty *= (obstacle_distance / OBSTACLE_THRESHOLD);
+        }
+    }
+    double orientation_penalty = 1.0f - abs(angle_difference(end_state.theta, atan2(goal_position.y - end_state.position.y, goal_position.x - end_state.position.x))) / M_PI;
+    return distance_penalty * obstacle_penalty * orientation_penalty;
+}
+
+RobotState MainWindow::find_best_trajectory(double x, double y, double theta, double v, double w, Point2d goal_position)
+{
+    double best_score = -INFINITY;
+    RobotState best_state;
+
+    std::vector<RobotState> samples = generateMotionSamples(x, y, theta, v, w);
+    for (const auto &sample : samples)
+    {
+        double score = evaluateTrajectory(x, y, theta, v, w, sample, goal_position);
+        if (score > best_score)
+        {
+            best_score = score;
+            best_state = sample;
+        }
+    }
+    return best_state;
+}

@@ -98,7 +98,7 @@ public:
     double angleDifference(double a1, double a2);
     double clip(double value, double min_value, double max_value);
     std::vector<RobotState> generateMotionSamples(double x, double y, double theta, double v, double w);
-    double evaulateTrajectory(double x, double y, double theta, double v, double w, RobotState end_state, Point2d goal_position);
+    double evaluateTrajectory(double x, double y, double theta, double v, double w, RobotState end_state, Point2d goal_position);
     RobotState find_best_trajectory(double x, double y, double theta, double v, double w, Point2d goal_position);
     // change the obstacles;
     double calculateCost(double x, double y, double theta, Point2d goal_pos, double obstacles);
