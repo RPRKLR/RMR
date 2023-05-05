@@ -124,7 +124,7 @@ public:
     CKobuki()
     {
 
-        std::cout << "kobuki instantiated" << std::endl;
+//        std::cout << "kobuki instantiated" << std::endl;
     };
     virtual ~CKobuki(){
 

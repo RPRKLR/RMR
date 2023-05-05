@@ -99,7 +99,7 @@ public:
     double clip(double value, double min_value, double max_value);
     std::vector<RobotState> generateMotionSamples(double x, double y, double theta, double v, double w);
     double evaluateTrajectory(/*double x, double y, double theta, double v, double w, */RobotState end_state, Point2d goal_position);
-    RobotState find_best_trajectory(double x, double y, double theta, double v, double w, Point2d goal_position);
+    RobotState findBestTrajectory(double x, double y, double theta, double v, double w, Point2d goal_position);
     // change the obstacles;
     double calculateCost(double x, double y, double theta, Point2d goal_pos, double obstacles);
     void dwa(double x, double y, double theta, double obstacles, Point2d goal_pos, std::vector<double> velocity_samples, std::vector<double> angular_velocity_samples, double max_linear_velocity, double max_angular_velocity, double max_linear_acceleration, double max_angular_acceleration);
@@ -158,16 +158,17 @@ private:
     bool create_map = false;
     const double ROBOT_RADIUS = 0.2;
     const double MAX_LINEAR_VELOCITY = 250;
-    const double MAX_ANGULAR_VELOCITY = M_PI / 4;
+    const double MAX_ANGULAR_VELOCITY = M_PI / 8;
     const double MAX_LINEAR_ACCELERATION = 250;
-    const double MAX_ANGULAR_ACCELERATION = M_PI / 4;
+    const double MAX_ANGULAR_ACCELERATION = M_PI / 8;
     const double GOAL_THRESHOLD = 0.1;
     const double OBSTACLE_THRESHOLD = ROBOT_RADIUS + 0.1;
     const double DT = 0.1;
     std::vector<double> velocity_samples = {25, 50, 75, 100, 125, 150, 175, 200, 225, 250};
     std::vector<double> angular_velocity_samples = {-M_PI / 4, M_PI / 4};
+    bool is_navigating = true;
     double goal_tolerance = 0.1;
-    Point2d goal_pos = {5, 5};
+    Point2d goal_pos = {0.05, 0.05};
     std::vector<Obstacle> obstacles;
 public slots:
     void setUiValues(double robotX, double robotY, double robotFi);
