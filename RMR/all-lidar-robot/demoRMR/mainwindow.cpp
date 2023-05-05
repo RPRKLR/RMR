@@ -129,105 +129,105 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
     old_left_encounter = robotdata.EncoderLeft;
     old_right_encounter = robotdata.EncoderRight;
 
-    if(is_navigating == true)
+    if (is_navigating == true)
     {
         Point2d current_position = {current_x, current_y};
-        if(distance(current_position,goal_pos) > GOAL_THRESHOLD)
+        if (distance(current_position, goal_pos) > GOAL_THRESHOLD)
         {
-            RobotState new_state = findBestTrajectory(current_x, current_y, current_angle,speed, rotation_speed,goal_pos);
-//            current_x = new_state.position.x;
-//            current_y = new_state.position.y;
-//            current_angle = new_state.theta;
+            RobotState new_state = findBestTrajectory(current_x, current_y, current_angle, speed, rotation_speed, goal_pos);
+            //            current_x = new_state.position.x;
+            //            current_y = new_state.position.y;
+            //            current_angle = new_state.theta;
             speed = new_state.v;
             rotation_speed = new_state.w;
             goTranslate();
             goRotate();
-            std::cout<< speed << std::endl;
+            std::cout << speed << std::endl;
         }
     }
 
-//    if (position_index < (sizeof(y_goal) / sizeof(y_goal[0])) && nav)
-//    {
+    //    if (position_index < (sizeof(y_goal) / sizeof(y_goal[0])) && nav)
+    //    {
 
-//        angle_goal = atan2(y_goal[position_index] - current_y, x_goal[position_index] - current_x);
-//        distance_from_goal = sqrt(pow(x_goal[position_index] - current_x, 2) + pow(y_goal[position_index] - current_y, 2));
-//        double delta_angle = angle_goal - current_angle;
-//        std::cout << distance_from_goal << std::endl;
-//        if (delta_angle > M_PI)
-//        {
-//            delta_angle -= M_PI * 2;
-//        }
-//        else if (delta_angle < -M_PI)
-//        {
-//            delta_angle += M_PI * 2;
-//        }
-//        std::cout << delta_angle << std::endl;
-//        if (distance_from_goal <= 0.05)
-//        {
-//            speed = 0;
-//            ++position_index;
-//            goTranslate();
-//        }
-//        else
-//        {
-//            //            if(delta_angle < 0)
-//            //            {
-//            //                rotation_speed = regulateRotation(delta_angle);
-//            //                goRotate();
-//            //            }
-//            //            else if (delta_angle > 0)
-//            //            {
-//            //                rotation_speed = regulateRotation(delta_angle);
-//            //                goRotate();
-//            //            }
-//            //            speed = regulateSpeed(distance_from_goal);
-//            //            goTranslate();
-//            //        }
+    //        angle_goal = atan2(y_goal[position_index] - current_y, x_goal[position_index] - current_x);
+    //        distance_from_goal = sqrt(pow(x_goal[position_index] - current_x, 2) + pow(y_goal[position_index] - current_y, 2));
+    //        double delta_angle = angle_goal - current_angle;
+    //        std::cout << distance_from_goal << std::endl;
+    //        if (delta_angle > M_PI)
+    //        {
+    //            delta_angle -= M_PI * 2;
+    //        }
+    //        else if (delta_angle < -M_PI)
+    //        {
+    //            delta_angle += M_PI * 2;
+    //        }
+    //        std::cout << delta_angle << std::endl;
+    //        if (distance_from_goal <= 0.05)
+    //        {
+    //            speed = 0;
+    //            ++position_index;
+    //            goTranslate();
+    //        }
+    //        else
+    //        {
+    //            //            if(delta_angle < 0)
+    //            //            {
+    //            //                rotation_speed = regulateRotation(delta_angle);
+    //            //                goRotate();
+    //            //            }
+    //            //            else if (delta_angle > 0)
+    //            //            {
+    //            //                rotation_speed = regulateRotation(delta_angle);
+    //            //                goRotate();
+    //            //            }
+    //            //            speed = regulateSpeed(distance_from_goal);
+    //            //            goTranslate();
+    //            //        }
 
-//            if (current_angle - angle_goal < -M_PI)
-//            {
-//                rotation_speed = regulateRotation((current_angle - angle_goal) + M_PI * 2);
-//                goRotate();
-//            }
-//            else if (current_angle - angle_goal > M_PI)
-//            {
-//                rotation_speed = regulateRotation((current_angle - angle_goal) - M_PI * 2);
-//                goRotate();
-//            }
-//            speed = regulateSpeed(distance_from_goal);
-//            goTranslate();
-//        } //            if (abs(angle_goal - current_angle) < 0.09 || abs(current_angle - angle_goal) > 2 * PI - 0.09)
-//          //            {
-//          //                rotation_speed = 0.0;
-//          //                speed = regulateSpeed(distance_from_goal);
-//          //                goTranslate();
-//          //            }
-//          //            else {
-//          //                if (current_angle < angle_goal && ((current_angle - angle_goal) < PI))
-//          //                    rotation_speed = regulateRotation(-1*(current_angle - angle_goal));
-//          //                else
-//          //                    rotation_speed = regulateRotation(current_angle - angle_goal);
-//          //                goRotate();
-//          //            }
-//          //            if (speed == 0)
-//          //            {
-//          //                if (abs(angle_goal - current_angle) < 0.09 || abs(current_angle - angle_goal) > 2 * PI - 0.09)
-//          //                    rotation_speed = 0;
-//          //                else if (angle_goal < current_angle && ((current_angle - angle_goal) < PI))
-//          //                    rotation_speed = regulateRotation(-abs(current_angle - angle_goal));
-//          //                else
-//          //                    rotation_speed = regulateRotation(abs(current_angle - angle_goal));
-//          ////            rotation_speed = 2;
-//          //                goRotate();
+    //            if (current_angle - angle_goal < -M_PI)
+    //            {
+    //                rotation_speed = regulateRotation((current_angle - angle_goal) + M_PI * 2);
+    //                goRotate();
+    //            }
+    //            else if (current_angle - angle_goal > M_PI)
+    //            {
+    //                rotation_speed = regulateRotation((current_angle - angle_goal) - M_PI * 2);
+    //                goRotate();
+    //            }
+    //            speed = regulateSpeed(distance_from_goal);
+    //            goTranslate();
+    //        } //            if (abs(angle_goal - current_angle) < 0.09 || abs(current_angle - angle_goal) > 2 * PI - 0.09)
+    //          //            {
+    //          //                rotation_speed = 0.0;
+    //          //                speed = regulateSpeed(distance_from_goal);
+    //          //                goTranslate();
+    //          //            }
+    //          //            else {
+    //          //                if (current_angle < angle_goal && ((current_angle - angle_goal) < PI))
+    //          //                    rotation_speed = regulateRotation(-1*(current_angle - angle_goal));
+    //          //                else
+    //          //                    rotation_speed = regulateRotation(current_angle - angle_goal);
+    //          //                goRotate();
+    //          //            }
+    //          //            if (speed == 0)
+    //          //            {
+    //          //                if (abs(angle_goal - current_angle) < 0.09 || abs(current_angle - angle_goal) > 2 * PI - 0.09)
+    //          //                    rotation_speed = 0;
+    //          //                else if (angle_goal < current_angle && ((current_angle - angle_goal) < PI))
+    //          //                    rotation_speed = regulateRotation(-abs(current_angle - angle_goal));
+    //          //                else
+    //          //                    rotation_speed = regulateRotation(abs(current_angle - angle_goal));
+    //          ////            rotation_speed = 2;
+    //          //                goRotate();
 
-//        //            }
+    //        //            }
 
-//        //            {
-//        //                if (distance_from_goal > 0.05)
-//        //                    speed = regulateSpeed(distance_from_goal);
-//        //                goTranslate();
-//        //            }
-//    }
+    //        //            {
+    //        //                if (distance_from_goal > 0.05)
+    //        //                    speed = regulateSpeed(distance_from_goal);
+    //        //                goTranslate();
+    //        //            }
+    //    }
 
     if (datacounter % 5)
     {
@@ -263,16 +263,16 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
     {
         if (laser_scan.scanDistance > 100 && laser_scan.scanDistance < 3000)
         {
-            Point2d coordinate = {laser_scan.scanDistance/1000 * cos(laser_scan.scanAngle),
-                                  laser_scan.scanDistance/1000 * sin(laser_scan.scanAngle)};
-//            std::cout << coordinate.x << " " << coordinate.y << std::endl;
+            Point2d coordinate = {laser_scan.scanDistance / 1000 * cos(laser_scan.scanAngle),
+                                  laser_scan.scanDistance / 1000 * sin(laser_scan.scanAngle)};
+            //            std::cout << coordinate.x << " " << coordinate.y << std::endl;
             bool found_obstacle = false;
             for (const auto &obstacle : obstacles)
             {
                 double dx = obstacle.coordinate.x - coordinate.x;
                 double dy = obstacle.coordinate.y - coordinate.y;
                 double dist = sqrt(dx * dx + dy * dy);
-                if (dist < 0.2)
+                if (dist < 0.05)
                 {
                     found_obstacle = true;
                     break;
@@ -284,7 +284,6 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
                 obstacle.coordinate = coordinate;
                 obstacles.push_back(obstacle);
             }
-
         }
     }
 
@@ -932,8 +931,6 @@ double MainWindow::evaluateTrajectory(/*double x, double y, double theta, double
     double orientation_penalty = 1.0f - abs(angleDifference(end_state.theta, atan2(goal_position.y - end_state.position.y, goal_position.x - end_state.position.x))) / M_PI;
     return distance_penalty * obstacle_penalty * orientation_penalty;
 }
-
-
 
 RobotState MainWindow::findBestTrajectory(double x, double y, double theta, double v, double w, Point2d goal_position)
 {
