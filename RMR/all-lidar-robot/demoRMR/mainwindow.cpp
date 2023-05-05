@@ -827,33 +827,33 @@ void MainWindow::on_pushButton_11_clicked()
     ui->pushButton_11->setText("Create map");
 }
 
-double MainWindow::calculateCost(double x, double y, double theta, Point2d goal_pos, std::vector<Obstacle> obstacles)
-{
-    double distance_to_goal = sqrt(pow(x - goal_pos.x, 2) + pow(y - goal_pos.y, 2));
-    double obstacle_costs = 0;
-    for (int i = 0; i < obstacles.size(); ++i)
-    {
-    }
-    return distance_to_goal + obstacle_costs;
-}
-void MainWindow::dwa(double x, double y, double theta, std::vector<Obstacle> obstacles, Point2d goal_pos, std::vector<double> velocity_samples, std::vector<double> angular_velocity_samples, double max_linear_velocity, double max_angular_velocity, double max_linear_acceleration, double max_angular_acceleration)
-{
-    double best_v = 0, best_w = 0, best_cost = INFINITY;
-    for (int i = 0; i < velocity_samples.size(); i++)
-    {
-        for (int j = 0; j < angular_velocity_samples.size(); ++j)
-        {
-            double cost = calculateCost(x, y, theta, goal_pos, obstacles);
+// double MainWindow::calculateCost(double x, double y, double theta, Point2d goal_pos, std::vector<Obstacle> obstacles)
+//{
+//     double distance_to_goal = sqrt(pow(x - goal_pos.x, 2) + pow(y - goal_pos.y, 2));
+//     double obstacle_costs = 0;
+//     for (int i = 0; i < obstacles.size(); ++i)
+//     {
+//     }
+//     return distance_to_goal + obstacle_costs;
+// }
+// void MainWindow::dwa(double x, double y, double theta, std::vector<Obstacle> obstacles, Point2d goal_pos, std::vector<double> velocity_samples, std::vector<double> angular_velocity_samples, double max_linear_velocity, double max_angular_velocity, double max_linear_acceleration, double max_angular_acceleration)
+//{
+//     double best_v = 0, best_w = 0, best_cost = INFINITY;
+//     for (int i = 0; i < velocity_samples.size(); i++)
+//     {
+//         for (int j = 0; j < angular_velocity_samples.size(); ++j)
+//         {
+//             double cost = calculateCost(x, y, theta, goal_pos, obstacles);
 
-            if (cost < best_cost)
-            {
-                best_v = velocity_samples.at(i);
-                best_w = angular_velocity_samples.at(j);
-                best_cost = cost;
-            }
-        }
-    }
-}
+//            if (cost < best_cost)
+//            {
+//                best_v = velocity_samples.at(i);
+//                best_w = angular_velocity_samples.at(j);
+//                best_cost = cost;
+//            }
+//        }
+//    }
+//}
 
 double MainWindow::distance(Point2d p1, Point2d p2)
 {
@@ -877,10 +877,10 @@ double MainWindow::clip(double value, double min_value, double max_value)
     return std::min(std::max(value, min_value), max_value);
 }
 
-std::vector<RobotState> generateMotionSamples(double x, double y, double theta, double v, double w)
+std::vector<RobotState> MainWindow::generateMotionSamples(double x, double y, double theta, double v, double w)
 {
     std::vector<RobotState> samples;
-    for (double linear_velocity = -MAX_LINEAR_VELOCITY; linear_velocity <= MAX_LINEAR_VELOCITY; linear_velocitu += MAX_LINEAR_ACCELERATION * DT)
+    for (double linear_velocity = -MAX_LINEAR_VELOCITY; linear_velocity <= MAX_LINEAR_VELOCITY; linear_velocity += MAX_LINEAR_ACCELERATION * DT)
     {
         for (double angular_velocity = -MAX_ANGULAR_VELOCITY; angular_velocity <= MAX_ANGULAR_VELOCITY; angular_velocity += MAX_ANGULAR_ACCELERATION * DT)
         {
@@ -896,7 +896,7 @@ std::vector<RobotState> generateMotionSamples(double x, double y, double theta, 
     return samples;
 }
 
-double MainWindow::evaluateTrajectory(double x, double y, double theta, double v, double w, RobotState end_state, Point2d goal_position)
+double MainWindow::evaluateTrajectory(/*double x, double y, double theta, double v, double w,*/ RobotState end_state, Point2d goal_position)
 {
     double distance_to_goal = distance(end_state.position, goal_position);
     double distance_penalty = 1.0f / (1.0f + distance_to_goal);
@@ -910,7 +910,7 @@ double MainWindow::evaluateTrajectory(double x, double y, double theta, double v
             obstacle_penalty *= (obstacle_distance / OBSTACLE_THRESHOLD);
         }
     }
-    double orientation_penalty = 1.0f - abs(angle_difference(end_state.theta, atan2(goal_position.y - end_state.position.y, goal_position.x - end_state.position.x))) / M_PI;
+    double orientation_penalty = 1.0f - abs(angleDifference(end_state.theta, atan2(goal_position.y - end_state.position.y, goal_position.x - end_state.position.x))) / M_PI;
     return distance_penalty * obstacle_penalty * orientation_penalty;
 }
 
@@ -922,7 +922,7 @@ RobotState MainWindow::find_best_trajectory(double x, double y, double theta, do
     std::vector<RobotState> samples = generateMotionSamples(x, y, theta, v, w);
     for (const auto &sample : samples)
     {
-        double score = evaluateTrajectory(x, y, theta, v, w, sample, goal_position);
+        double score = evaluateTrajectory(/*x, y, theta, v, w, */ sample, goal_position);
         if (score > best_score)
         {
             best_score = score;
