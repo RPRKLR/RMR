@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 {
 
     // tu je napevno nastavena ip. treba zmenit na to co ste si zadali do text boxu alebo nejaku inu pevnu. co bude spravna
-    ipaddress = "192.168.1.2"; //"192.168.1.15"; //"192.168.1.15"; // 192.168.1.11 127.0.0.1
+    ipaddress = "192.168.1.9"; //"192.168.1.15"; //"192.168.1.15"; // 192.168.1.11 127.0.0.1
     //  cap.open("http://192.168.1.11:8000/stream.mjpg");
     ui->setupUi(this);
     datacounter = 0;
@@ -142,7 +142,10 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
             rotation_speed = new_state.w;
             goTranslate();
             goRotate();
-            std::cout << speed << std::endl;
+            // std::cout << speed << std::endl;
+        }
+        else {
+            std::cout << "At Goal" << std::endl;
         }
     }
 
@@ -272,7 +275,7 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
                 double dx = obstacle.coordinate.x - coordinate.x;
                 double dy = obstacle.coordinate.y - coordinate.y;
                 double dist = sqrt(dx * dx + dy * dy);
-                if (dist < 0.05)
+                if (dist < 0.01)
                 {
                     found_obstacle = true;
                     break;
@@ -903,11 +906,11 @@ std::vector<RobotState> MainWindow::generateMotionSamples(double x, double y, do
         for (double angular_velocity = -MAX_ANGULAR_VELOCITY; angular_velocity <= MAX_ANGULAR_VELOCITY; angular_velocity += MAX_ANGULAR_ACCELERATION * DT)
         {
             RobotState sample_state;
-            sample_state.v = clip(v + linear_velocity * DT, -MAX_LINEAR_VELOCITY, MAX_LINEAR_VELOCITY); // -250 + (-250) * 0.1 = -275
-            sample_state.w = clip(w + angular_velocity * DT, -MAX_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY);
-            sample_state.position.x = x + sample_state.v * cos(theta) * DT; // 10 + (-1) * cos(0) * 0.1 = 0.9  // 10 + 1 cos(0) * 0.1 = 1.1   // 10 + 0  * cos(0) * 0.1 = 10
-            sample_state.position.y = y + sample_state.v * sin(theta) * DT; // 10 + (-1) * sin(0) * 0.1 = 10  // 10 + 1 cos(0) * 0.1 = 1.1   // 10 + 0  * cos(0) * 0.1 = 10
-            sample_state.theta = theta + sample_state.w * DT;
+            sample_state.v = clip(v + linear_velocity, -MAX_LINEAR_VELOCITY, MAX_LINEAR_VELOCITY); // -250 + (-250) * 0.1 = -275
+            sample_state.w = clip(w + angular_velocity, -MAX_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY);
+            sample_state.position.x = x + sample_state.v * cos(theta); // 10 + (-1) * cos(0) * 0.1 = 0.9  // 10 + 1 cos(0) * 0.1 = 1.1   // 10 + 0  * cos(0) * 0.1 = 10
+            sample_state.position.y = y + sample_state.v * sin(theta); // 10 + (-1) * sin(0) * 0.1 = 10  // 10 + 1 cos(0) * 0.1 = 1.1   // 10 + 0  * cos(0) * 0.1 = 10
+            sample_state.theta = theta + sample_state.w;
 
             samples.push_back(sample_state);
         }
@@ -935,13 +938,13 @@ double MainWindow::evaluateTrajectory(/*double x, double y, double theta, double
 
 RobotState MainWindow::findBestTrajectory(double x, double y, double theta, double v, double w, Point2d goal_position)
 {
-    double best_score = 9999.9;
+    double best_score = -INFINITY;
     RobotState best_state;
     std::vector<RobotState> samples = generateMotionSamples(x, y, theta, v, w);
     for (const auto &sample : samples)
     {
         double score = evaluateTrajectory(/*x, y, theta, v, w, */ sample, goal_position);
-        if (score < best_score)
+        if (score > best_score)
         {
             best_score = score;
             best_state = sample;

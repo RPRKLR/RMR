@@ -158,9 +158,9 @@ private:
     bool create_map = false;
     const double ROBOT_RADIUS = 0.2;
     const double MAX_LINEAR_VELOCITY = 250;
-    const double MAX_ANGULAR_VELOCITY = M_PI / 8;
+    const double MAX_ANGULAR_VELOCITY = M_PI / 4;
     const double MAX_LINEAR_ACCELERATION = 250;
-    const double MAX_ANGULAR_ACCELERATION = M_PI / 8;
+    const double MAX_ANGULAR_ACCELERATION = M_PI / 4;
     const double GOAL_THRESHOLD = 0.1;
     const double OBSTACLE_THRESHOLD = ROBOT_RADIUS + 0.1;
     const double DT = 0.1;
@@ -168,7 +168,7 @@ private:
     std::vector<double> angular_velocity_samples = {-M_PI / 4, M_PI / 4};
     bool is_navigating = true;
     double goal_tolerance = 0.1;
-    Point2d goal_pos = {0.05, 0.05};
+    Point2d goal_pos = {0.5, 2.0};
     std::vector<Obstacle> obstacles;
 public slots:
     void setUiValues(double robotX, double robotY, double robotFi);
