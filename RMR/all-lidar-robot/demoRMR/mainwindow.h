@@ -33,13 +33,6 @@ typedef struct
     double y;
 } Point2d;
 
-enum State
-{
-    DONE,
-    GOALSEEK,
-    WALLFOLLOW,
-};
-
 typedef struct
 {
     Point2d coordinate;
@@ -81,15 +74,6 @@ public:
     double regulateSpeed(double error_distance);
     double regulateRotation(double error_angle);
     void floodAlgorithm(Point2d end_point);
-    void bug2(double x_goal_position, double y_goal_position, LaserMeasurement &sonars);
-    double computeRWFRot(LaserMeasurement sonars);
-    bool obstacleInWay(double angle_goal, LaserMeasurement sonars);
-    double minRange(LaserMeasurement sonars, double start, double end);
-    double getDistance(double x_original, double y_original, double x_goal, double y_goal);
-    double computeTranslation(LaserMeasurement sonars);
-    double computeGoalSeek(double goal_angle);
-    double inToRange(double minimal_value, double current_value, double maximum_value);
-    double min(double n1, double n2);
     void readMap();
     int findPath(Point2d start_position);
     void correctMap();
@@ -98,7 +82,7 @@ public:
     double angleDifference(double a1, double a2);
     double clip(double value, double min_value, double max_value);
     std::vector<RobotState> generateMotionSamples(double x, double y, double theta, double v, double w);
-    double evaluateTrajectory(/*double x, double y, double theta, double v, double w, */RobotState end_state, Point2d goal_position);
+    double evaluateTrajectory(/*double x, double y, double theta, double v, double w, */ RobotState end_state, Point2d goal_position);
     RobotState findBestTrajectory(double x, double y, double theta, double v, double w, Point2d goal_position);
     // change the obstacles;
     double calculateCost(double x, double y, double theta, Point2d goal_pos, double obstacles);
@@ -146,7 +130,7 @@ private:
     // I used unsigned data for the old encounter data, so I do not have to deal with overflows
     unsigned short old_left_encounter, old_right_encounter;
     int speed = 0, position_index = 0;
-    double x_goal[5] = {0, 0,0,0, 1};
+    double x_goal[5] = {0, 0, 0, 0, 1};
     double y_goal[5] = {0.5, 1, 2.0, 2.5, 2.5};
     double forwardspeed;  // mm/s
     double rotationspeed; // omega/s
@@ -162,7 +146,7 @@ private:
     const double MAX_LINEAR_ACCELERATION = 25;
     const double MAX_ANGULAR_ACCELERATION = (M_PI / 4 / 10);
     const double GOAL_THRESHOLD = 0.1;
-    const double OBSTACLE_THRESHOLD =0.01;
+    const double OBSTACLE_THRESHOLD = 0.01;
     const double DT = 0.1;
     std::vector<double> velocity_samples = {25, 50, 75, 100, 125, 150, 175, 200, 225, 250};
     std::vector<double> angular_velocity_samples = {-M_PI / 4, M_PI / 4};
