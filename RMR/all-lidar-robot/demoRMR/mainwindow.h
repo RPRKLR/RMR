@@ -146,29 +146,29 @@ private:
     // I used unsigned data for the old encounter data, so I do not have to deal with overflows
     unsigned short old_left_encounter, old_right_encounter;
     int speed = 0, position_index = 0;
-    double x_goal[3] = {0.5, 0.5, 1.0};
-    double y_goal[3] = {0.0, 0.5, 1.0};
+    double x_goal[5] = {0, 0,0,0, 1};
+    double y_goal[5] = {0.5, 1, 2.0, 2.5, 2.5};
     double forwardspeed;  // mm/s
     double rotationspeed; // omega/s
     bool mapping = true;
-    bool nav = false;
+    bool nav = true;
     State robot_state;
     static constexpr double at_goal_threshold = 0.2;
     int pole[100][2];
     bool create_map = false;
-    const double ROBOT_RADIUS = 0.2;
+    const double ROBOT_RADIUS = 0.01;
     const double MAX_LINEAR_VELOCITY = 250;
     const double MAX_ANGULAR_VELOCITY = M_PI / 4;
-    const double MAX_LINEAR_ACCELERATION = 250;
-    const double MAX_ANGULAR_ACCELERATION = M_PI / 4;
+    const double MAX_LINEAR_ACCELERATION = 25;
+    const double MAX_ANGULAR_ACCELERATION = (M_PI / 4 / 10);
     const double GOAL_THRESHOLD = 0.1;
-    const double OBSTACLE_THRESHOLD = ROBOT_RADIUS + 0.1;
+    const double OBSTACLE_THRESHOLD =0.01;
     const double DT = 0.1;
     std::vector<double> velocity_samples = {25, 50, 75, 100, 125, 150, 175, 200, 225, 250};
     std::vector<double> angular_velocity_samples = {-M_PI / 4, M_PI / 4};
     bool is_navigating = true;
     double goal_tolerance = 0.1;
-    Point2d goal_pos = {0.5, 2.0};
+    Point2d goal_pos = {0, 0};
     std::vector<Obstacle> obstacles;
 public slots:
     void setUiValues(double robotX, double robotY, double robotFi);

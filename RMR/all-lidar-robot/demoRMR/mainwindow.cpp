@@ -129,22 +129,32 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
     old_left_encounter = robotdata.EncoderLeft;
     old_right_encounter = robotdata.EncoderRight;
 
-    if (is_navigating == true)
+    if (position_index < (sizeof(y_goal) / sizeof(y_goal[0])) && is_navigating == true)
     {
         Point2d current_position = {current_x, current_y};
-        if (distance(current_position, goal_pos) > GOAL_THRESHOLD)
+        Point2d goal_position = {x_goal[position_index], y_goal[position_index]};
+        if (distance(current_position, goal_position) > GOAL_THRESHOLD)
         {
-            RobotState new_state = findBestTrajectory(current_x, current_y, current_angle, speed, rotation_speed, goal_pos);
+            RobotState new_state = findBestTrajectory(current_x, current_y, current_angle, speed, rotation_speed, goal_position);
             //            current_x = new_state.position.x;
             //            current_y = new_state.position.y;
             //            current_angle = new_state.theta;
             speed = new_state.v;
             rotation_speed = new_state.w;
-            goTranslate();
-            goRotate();
+            if (rotation_speed < 0.1)
+                goTranslate();
+            else
+                goRotate();
             // std::cout << speed << std::endl;
         }
-        else {
+        else
+        {
+            position_index++;
+            /*
+            speed = 0;
+            rotation_speed = 0;
+            robot.setRotationSpeed(rotation_speed);
+            robot.setTranslationSpeed(speed);*/
             std::cout << "At Goal" << std::endl;
         }
     }
@@ -262,32 +272,37 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
     // tu mozete robit s datami z lidaru.. napriklad najst prekazky, zapisat do mapy. naplanovat ako sa prekazke vyhnut.
     //  ale nic vypoctovo narocne - to iste vlakno ktore cita data z lidaru
     // obstacles.clear();
+    int counter = 0;
     for (const auto &laser_scan : copyOfLaserData.Data)
     {
-        if (laser_scan.scanDistance > 100 && laser_scan.scanDistance < 3000)
+        if (counter % 5 == 0)
         {
-            Point2d coordinate = {laser_scan.scanDistance / 1000 * cos(laser_scan.scanAngle),
-                                  laser_scan.scanDistance / 1000 * sin(laser_scan.scanAngle)};
-            //            std::cout << coordinate.x << " " << coordinate.y << std::endl;
-            bool found_obstacle = false;
-            for (const auto &obstacle : obstacles)
+            if (laser_scan.scanDistance > 100 && laser_scan.scanDistance < 3000)
             {
-                double dx = obstacle.coordinate.x - coordinate.x;
-                double dy = obstacle.coordinate.y - coordinate.y;
-                double dist = sqrt(dx * dx + dy * dy);
-                if (dist < 0.01)
+                Point2d coordinate = {laser_scan.scanDistance / 1000 * cos(laser_scan.scanAngle),
+                                      laser_scan.scanDistance / 1000 * sin(laser_scan.scanAngle)};
+                //            std::cout << coordinate.x << " " << coordinate.y << std::endl;
+                bool found_obstacle = false;
+                for (const auto &obstacle : obstacles)
                 {
-                    found_obstacle = true;
-                    break;
+                    double dx = obstacle.coordinate.x - coordinate.x;
+                    double dy = obstacle.coordinate.y - coordinate.y;
+                    double dist = sqrt(dx * dx + dy * dy);
+                    if (dist < 0.1)
+                    {
+                        found_obstacle = true;
+                        break;
+                    }
+                }
+                if (!found_obstacle)
+                {
+                    Obstacle obstacle;
+                    obstacle.coordinate = coordinate;
+                    obstacles.push_back(obstacle);
                 }
             }
-            if (!found_obstacle)
-            {
-                Obstacle obstacle;
-                obstacle.coordinate = coordinate;
-                obstacles.push_back(obstacle);
-            }
         }
+        counter++;
     }
 
     if (rotation_speed == 0 && mapping == true)
@@ -901,16 +916,16 @@ double MainWindow::clip(double value, double min_value, double max_value)
 std::vector<RobotState> MainWindow::generateMotionSamples(double x, double y, double theta, double v, double w)
 {
     std::vector<RobotState> samples;
-    for (double linear_velocity = -MAX_LINEAR_VELOCITY; linear_velocity <= MAX_LINEAR_VELOCITY; linear_velocity += MAX_LINEAR_ACCELERATION * DT)
+    for (double linear_velocity = -MAX_LINEAR_VELOCITY; linear_velocity <= MAX_LINEAR_VELOCITY; linear_velocity += MAX_LINEAR_ACCELERATION)
     {
-        for (double angular_velocity = -MAX_ANGULAR_VELOCITY; angular_velocity <= MAX_ANGULAR_VELOCITY; angular_velocity += MAX_ANGULAR_ACCELERATION * DT)
+        for (double angular_velocity = -MAX_ANGULAR_VELOCITY; angular_velocity <= MAX_ANGULAR_VELOCITY; angular_velocity += MAX_ANGULAR_ACCELERATION)
         {
             RobotState sample_state;
             sample_state.v = clip(v + linear_velocity, -MAX_LINEAR_VELOCITY, MAX_LINEAR_VELOCITY); // -250 + (-250) * 0.1 = -275
             sample_state.w = clip(w + angular_velocity, -MAX_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY);
-            sample_state.position.x = x + sample_state.v * cos(theta); // 10 + (-1) * cos(0) * 0.1 = 0.9  // 10 + 1 cos(0) * 0.1 = 1.1   // 10 + 0  * cos(0) * 0.1 = 10
-            sample_state.position.y = y + sample_state.v * sin(theta); // 10 + (-1) * sin(0) * 0.1 = 10  // 10 + 1 cos(0) * 0.1 = 1.1   // 10 + 0  * cos(0) * 0.1 = 10
-            sample_state.theta = theta + sample_state.w;
+            sample_state.position.x = x + sample_state.v * cos(theta) * 0.0001; // 10 + (-1) * cos(0) * 0.1 = 0.9  // 10 + 1 cos(0) * 0.1 = 1.1   // 10 + 0  * cos(0) * 0.1 = 10
+            sample_state.position.y = y + sample_state.v * sin(theta) * 0.0001; // 10 + (-1) * sin(0) * 0.1 = 10  // 10 + 1 cos(0) * 0.1 = 1.1   // 10 + 0  * cos(0) * 0.1 = 10
+            sample_state.theta = theta + sample_state.w * 0.0001;
 
             samples.push_back(sample_state);
         }
@@ -921,7 +936,7 @@ std::vector<RobotState> MainWindow::generateMotionSamples(double x, double y, do
 double MainWindow::evaluateTrajectory(/*double x, double y, double theta, double v, double w,*/ RobotState end_state, Point2d goal_position)
 {
     double distance_to_goal = distance(end_state.position, goal_position);
-    double distance_penalty = 1.0f / (1.0f + distance_to_goal);
+    double distance_penalty = 1.0f * 10 / (1.0f + distance_to_goal);
 
     double obstacle_penalty = 1.0f;
     for (const auto &obstacle : obstacles)
@@ -929,7 +944,8 @@ double MainWindow::evaluateTrajectory(/*double x, double y, double theta, double
         double obstacle_distance = distance(end_state.position, obstacle.coordinate);
         if (obstacle_distance < OBSTACLE_THRESHOLD)
         {
-            obstacle_penalty *= (obstacle_distance / OBSTACLE_THRESHOLD);
+            obstacle_penalty *= (obstacle_distance / OBSTACLE_THRESHOLD * 100);
+            //            std::cout << "Near wall" << std::endl;
         }
     }
     double orientation_penalty = 1.0f - abs(angleDifference(end_state.theta, atan2(goal_position.y - end_state.position.y, goal_position.x - end_state.position.x))) / M_PI;
@@ -938,18 +954,23 @@ double MainWindow::evaluateTrajectory(/*double x, double y, double theta, double
 
 RobotState MainWindow::findBestTrajectory(double x, double y, double theta, double v, double w, Point2d goal_position)
 {
+    std::string temp_str;
+    std::ofstream file("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/state_test.txt");
+
     double best_score = -INFINITY;
     RobotState best_state;
     std::vector<RobotState> samples = generateMotionSamples(x, y, theta, v, w);
     for (const auto &sample : samples)
     {
         double score = evaluateTrajectory(/*x, y, theta, v, w, */ sample, goal_position);
+        file << sample.position.x << " " << sample.position.y << " " << sample.theta << " " << sample.v << " " << sample.w << " " << score << std::endl;
         if (score > best_score)
         {
             best_score = score;
             best_state = sample;
         }
     }
-    std::cout << best_state.v << " " << best_score << std::endl;
+    //    std::cout << best_state.v << " " << best_score << std::endl;
+    file.close();
     return best_state;
 }
