@@ -18,7 +18,7 @@
 // #include "ckobuki.h"
 // #include "rplidar.h"
 #include <memory>
-
+#include <queue>
 #include "robot.h"
 #include "map_loader.h"
 
@@ -45,6 +45,20 @@ typedef struct
     double v;
     double w;
 } RobotState;
+
+struct Node
+{
+    int x, y;
+    int g_cost, h_cost, f_cost;
+    Node *parent;
+
+    Node(int x, int y) : x(x), y(y), g_cost(0), h_cost(0), f_cost(0), parent(nullptr) {}
+
+    bool operator==(const Node &other) const
+    {
+        return x == other.x && y == other.y;
+    }
+};
 
 /// toto je trieda s oknom.. ktora sa spusti ked sa spusti aplikacia.. su tu vsetky gombiky a spustania...
 class MainWindow : public QMainWindow
@@ -87,6 +101,12 @@ public:
     // change the obstacles;
     double calculateCost(double x, double y, double theta, Point2d goal_pos, double obstacles);
     void dwa(double x, double y, double theta, double obstacles, Point2d goal_pos, std::vector<double> velocity_samples, std::vector<double> angular_velocity_samples, double max_linear_velocity, double max_angular_velocity, double max_linear_acceleration, double max_angular_acceleration);
+    std::vector<std::shared_ptr<Node>> aStar(Point2d start, Point2d goal, int map[150][150]);
+    bool isWall(int x, int y);
+    std::vector<std::shared_ptr<Node>> getNeighbors(int x, int y, int map[150][150]);
+    std::vector<std::shared_ptr<Node>> getPath(std::shared_ptr<Node> end_node);
+    void deleteNodes(vector<Node *> &nodes);
+    double euclidean_distance(std::pair<int, int> a, std::pair<int, int> b);
 private slots:
     void on_pushButton_9_clicked();
 
@@ -136,7 +156,6 @@ private:
     double rotationspeed; // omega/s
     bool mapping = true;
     bool nav = true;
-    State robot_state;
     static constexpr double at_goal_threshold = 0.2;
     int pole[100][2];
     bool create_map = false;
@@ -148,6 +167,9 @@ private:
     const double GOAL_THRESHOLD = 0.1;
     const double OBSTACLE_THRESHOLD = 0.01;
     const double DT = 0.1;
+    const int WALL_VALUE = 1;
+    const int GOAL_VALUE = 2;
+    const int NO_GO_VALUE = 900;
     std::vector<double> velocity_samples = {25, 50, 75, 100, 125, 150, 175, 200, 225, 250};
     std::vector<double> angular_velocity_samples = {-M_PI / 4, M_PI / 4};
     bool is_navigating = true;

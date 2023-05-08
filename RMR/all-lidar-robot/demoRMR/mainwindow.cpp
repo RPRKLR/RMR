@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "map_loader.h"
+#include <queue>
+#include <cmath>
 
 /// TOTO JE DEMO PROGRAM...AK SI HO NASIEL NA PC V LABAKU NEPREPISUJ NIC,ALE SKOPIRUJ SI MA NIEKAM DO INEHO FOLDERA
 ///  AK HO MAS Z GITU A ROBIS NA LABAKOVOM PC, TAK SI HO VLOZ DO FOLDERA KTORY JE JASNE ODLISITELNY OD TVOJICH KOLEGOV
@@ -16,6 +18,8 @@
 ///  KED SA NAJBLIZSIE PUSTIS DO PRACE, SKONTROLUJ CI JE MIESTO TOHTO TEXTU TVOJ IDENTIFIKATOR
 ///  AZ POTOM ZACNI ROBIT... AK TO NESPRAVIS, POJDU BODY DOLE... A NIE JEDEN,ALEBO DVA ALE BUDES RAD
 ///  AK SA DOSTANES NA SKUSKU
+
+using NodePtr = std::shared_ptr<Node>;
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
                                           ui(new Ui::MainWindow)
@@ -714,7 +718,7 @@ void MainWindow::correctMap()
     }
     // File write implementation here
     std::string temp_str;
-    std::ofstream file("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/flood.txt");
+    std::ofstream file("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/corrected_map.txt");
     if (file.is_open())
     {
 
@@ -723,7 +727,20 @@ void MainWindow::correctMap()
             for (int j = 0; j < 150; ++j)
             {
                 std::string character = std::to_string(path_finding_map[i][j]);
+                //                if (character == "900")
+                //                    character = "A";
                 temp_str += character;
+                // std::string character;
+                // if (path_finding_map[i][j] == 0)
+                //     character = 🟦;
+                // else if (path_finding_map[i][j] == 1)
+                //     character = 🟥;
+                // else if (path_finding_map[i][j] == 900)
+                //     character == ⬜;
+                // else if (path_finding_map[i][j] == 2)
+                //     character = 🟩;
+                // else
+                //     character = 😂;
             }
             file << temp_str << std::endl;
             temp_str.clear();
@@ -744,11 +761,75 @@ void MainWindow::on_pushButton_10_clicked()
     correctMap();
     floodAlgorithm(end_point);
     int pt = findPath(start_point);
+    std::cout << pt << std::endl;
     printf("%d\n", pt);
     for (int r = 0; r < pt; r++)
     {
         printf("x=%d y=%d\n", pole[r][0], pole[r][1]);
     }
+    std::string temp_str;
+    std::ofstream file("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/flood.txt");
+    if (file.is_open())
+    {
+
+        for (int i = 0; i < 150; ++i)
+        {
+            for (int j = 0; j < 150; ++j)
+            {
+                std::string character = std::to_string(path_finding_map[i][j]);
+                if (character == "900")
+                    character = "A";
+                temp_str += character;
+                // std::string character;
+                // if (path_finding_map[i][j] == 0)
+                //     character = 🟦;
+                // else if (path_finding_map[i][j] == 1)
+                //     character = 🟥;
+                // else if (path_finding_map[i][j] == 900)
+                //     character == ⬜;
+                // else if (path_finding_map[i][j] == 2)
+                //     character = 🟩;
+                // else
+                //     character = 😂;
+            }
+            file << temp_str << std::endl;
+            temp_str.clear();
+        }
+        file.close();
+    }
+    aStar(start_point, end_point, path_finding_map);
+    temp_str.clear();
+    std::ofstream astar_file("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/astar.txt");
+    if (astar_file.is_open())
+    {
+
+        for (int i = 0; i < 150; ++i)
+        {
+            for (int j = 0; j < 150; ++j)
+            {
+                std::string character = std::to_string(path_finding_map[i][j]);
+                if (character == "900")
+                    character = "A";
+                temp_str += character;
+                // std::string character;
+                // if (path_finding_map[i][j] == 0)
+                //     character = 🟦;
+                // else if (path_finding_map[i][j] == 1)
+                //     character = 🟥;
+                // else if (path_finding_map[i][j] == 900)
+                //     character == ⬜;
+                // else if (path_finding_map[i][j] == 2)
+                //     character = 🟩;
+                // else
+                //     character = 😂;
+            }
+            astar_file << temp_str << std::endl;
+            temp_str.clear();
+        }
+        astar_file.close();
+    }
+
+    std::cout << "Done with the flood";
 }
 
 void MainWindow::on_pushButton_11_clicked()
@@ -839,4 +920,154 @@ RobotState MainWindow::findBestTrajectory(double x, double y, double theta, doub
     //    std::cout << best_state.v << " " << best_score << std::endl;
     file.close();
     return best_state;
+}
+
+bool MainWindow::isWall(int x, int y)
+{
+    if (x < 0 || x >= 150 || y < 0 || y >= 150)
+    {
+        return true;
+    }
+    if (path_finding_map[x][y] == 1)
+    {
+        return true;
+    }
+    return false;
+}
+
+std::vector<NodePtr> MainWindow::getNeighbors(int x, int y, int map[150][150])
+{
+    std::vector<NodePtr> neighbors;
+
+    if (x > 0 && map[x - 1][y] != 1 && map[x - 1][y] != 900)
+    {
+        neighbors.push_back(std::make_shared<Node>(x - 1, y));
+    }
+    if (y > 0 && map[x][y - 1] != 1 && map[x][y - 1] != 900)
+    {
+        neighbors.push_back(std::make_shared<Node>(x, y - 1));
+    }
+    if (x < 149 && map[x + 1][y] != 1 && map[x + 1][y] != 900)
+    {
+        neighbors.push_back(std::make_shared<Node>(x + 1, y));
+    }
+    if (y < 149 && map[x][y + 1] != 1 && map[x][y + 1] != 900)
+    {
+        neighbors.push_back(std::make_shared<Node>(x, y + 1));
+    }
+
+    return neighbors;
+}
+
+std::vector<NodePtr> MainWindow::getPath(NodePtr end_node)
+{
+    std::vector<NodePtr> path;
+
+    NodePtr current_node = end_node;
+    while (current_node != nullptr)
+    {
+        path.push_back(current_node);
+        current_node->parent;
+    }
+
+    std::reverse(path.begin(), path.end());
+
+    return path;
+}
+
+void MainWindow::deleteNodes(vector<Node *> &nodes)
+{
+    for (Node *node : nodes)
+    {
+        delete node;
+    }
+
+    nodes.clear();
+}
+
+std::vector<NodePtr> MainWindow::aStar(Point2d start, Point2d goal, int map[150][150])
+{
+    std::vector<NodePtr> path;
+
+    NodePtr start_node = std::make_shared<Node>(start.x, start.y);
+    NodePtr goal_node = std::make_shared<Node>(goal.x, goal.y);
+
+    std::vector<NodePtr> open_set_nodes;
+    std::vector<NodePtr> closed_set;
+
+    std::priority_queue<NodePtr, std::vector<NodePtr>, std::function<bool(NodePtr, NodePtr)>> open_set(
+        [](NodePtr a, NodePtr b) -> bool
+        { return a->f_cost > b->f_cost; });
+
+    start_node->g_cost = 0;
+    start_node->h_cost = abs(start.x - goal.x) + abs(start.y - goal.y);
+    start_node->f_cost = start_node->g_cost + start_node->h_cost;
+
+    open_set.push(start_node);
+    open_set_nodes.push_back(start_node);
+
+    while (!open_set.empty())
+    {
+        std::cout << "workwork" << std::endl;
+        NodePtr current_node = open_set.top();
+        open_set.pop();
+
+        if (*current_node == *goal_node)
+        {
+            path = getPath(current_node);
+            break;
+        }
+
+        closed_set.push_back(current_node);
+
+        std::vector<NodePtr> neighbors = getNeighbors(current_node->x, current_node->y, map);
+        for (NodePtr &neighbor : neighbors)
+        {
+            if (std::find_if(closed_set.begin(), closed_set.end(),
+                             [neighbor](const NodePtr &n) -> bool
+                             { return *n == *neighbor; }) != closed_set.end())
+            {
+                continue;
+            }
+
+            int tentative_g_cost = current_node->g_cost + 1;
+            bool neighbor_in_open_set = std::find_if(open_set_nodes.begin(), open_set_nodes.end(),
+                                                     [neighbor](const NodePtr &n) -> bool
+                                                     { return *n == *neighbor; }) != open_set_nodes.end();
+            if (!neighbor_in_open_set)
+            {
+                neighbor->g_cost = tentative_g_cost;
+                neighbor->h_cost = abs(neighbor->x - goal.x) + abs(neighbor->y - goal.y);
+                neighbor->f_cost = neighbor->g_cost + neighbor->h_cost;
+                neighbor->parent = current_node->parent;
+                open_set.push(neighbor);
+                open_set_nodes.push_back(neighbor);
+            }
+            else if (tentative_g_cost < neighbor->g_cost)
+            {
+                neighbor->g_cost = tentative_g_cost;
+                neighbor->f_cost = neighbor->g_cost + neighbor->h_cost;
+                neighbor->parent = current_node->parent;
+            }
+        }
+
+        // Remove the current node from the open set nodes
+        auto it = std::find_if(open_set_nodes.begin(), open_set_nodes.end(),
+                               [current_node](const NodePtr &n) -> bool
+                               { return *n == *current_node; });
+        if (it != open_set_nodes.end())
+        {
+            open_set_nodes.erase(it);
+        }
+    }
+    std::cout << "end" << std::endl;
+    return path;
+}
+
+// Define a function to calculate the Euclidean distance between two nodes
+double MainWindow::euclidean_distance(pair<int, int> a, pair<int, int> b)
+{
+    int dx = a.first - b.first;
+    int dy = a.second - b.second;
+    return sqrt(dx * dx + dy * dy);
 }
