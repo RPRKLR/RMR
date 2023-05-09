@@ -150,23 +150,48 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
     }
     if (follow_created_path == true && path_following_index < path_points.size() - 1)
     {
-        is_navigating = false;
-        Point2d current_position = {current_x, current_y};
-        Point2d goal_position = {path_points.back().x, path_points.back().y};
-        if (distance(current_position, goal_position) > GOAL_THRESHOLD)
+        //        is_navigating = false;
+        //        Point2d current_position = {current_x, current_y};
+        //        Point2d goal_position = {path_points.back().x, path_points.back().y};
+        //        if (distance(current_position, goal_position) > GOAL_THRESHOLD)
+        //        {
+        //            RobotState new_state = findBestTrajectory(current_x, current_y, current_angle, speed, rotation_speed, goal_position);
+        //            speed = new_state.v;
+        //            rotation_speed = new_state.w;
+        //            if (rotation_speed < 0.1)
+        //                goTranslate();
+        //            else
+        //                goRotate();
+        //        }
+        //        else
+        //        {
+        //            path_following_index++;
+        //            std::cout << "At Goal" << std::endl;
+        //        }
+        angle_goal = atan2(y_goal[position_index] - current_y, x_goal[position_index] - current_x);
+        distance_from_goal = sqrt(pow(x_goal[position_index] - current_x, 2) + pow(y_goal[position_index] - current_y, 2));
+        if (distance_from_goal <= 0.1)
         {
-            RobotState new_state = findBestTrajectory(current_x, current_y, current_angle, speed, rotation_speed, goal_position);
-            speed = new_state.v;
-            rotation_speed = new_state.w;
-            if (rotation_speed < 0.1)
-                goTranslate();
-            else
-                goRotate();
+            speed = 0;
+            path_following_index++;
+            goTranslate();
         }
         else
         {
-            path_following_index++;
-            std::cout << "At Goal" << std::endl;
+            if (abs(angle_goal - current_angle) < 0.09 || abs(current_angle - angle_goal) > 2 * M_PI - 0.09)
+                rotation_speed = 0;
+            else if (angle_goal < current_angle && ((current_angle - angle_goal) < M_PI))
+                regulateRotation(-1 * abs(current_angle - angle_goal));
+            else
+                regulateRotation(abs(current_angle - angle_goal))
+                    goRotate();
+
+            if (rotation_speed == 0)
+            {
+                if (distance_from_goal > 0.1)
+                    regulateSpeed(distance_from_goal);
+                goTranslate();
+            }
         }
     }
 
