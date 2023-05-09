@@ -118,10 +118,6 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
     current_y += delta_s * sin(current_angle + (delta_fi / 2));
 
     current_angle += delta_fi;
-    //    if (current_angle > 2 * PI)
-    //        current_angle -= 2 * PI;
-    //    if (current_angle < 0)
-    //        current_angle += 2 * PI;
 
     if (current_angle > PI)
         current_angle -= 2 * PI;
@@ -139,25 +135,16 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
         if (distance(current_position, goal_position) > GOAL_THRESHOLD)
         {
             RobotState new_state = findBestTrajectory(current_x, current_y, current_angle, speed, rotation_speed, goal_position);
-            //            current_x = new_state.position.x;
-            //            current_y = new_state.position.y;
-            //            current_angle = new_state.theta;
             speed = new_state.v;
             rotation_speed = new_state.w;
             if (rotation_speed < 0.1)
                 goTranslate();
             else
                 goRotate();
-            // std::cout << speed << std::endl;
         }
         else
         {
             position_index++;
-            /*
-            speed = 0;
-            rotation_speed = 0;
-            robot.setRotationSpeed(rotation_speed);
-            robot.setTranslationSpeed(speed);*/
             std::cout << "At Goal" << std::endl;
         }
     }
@@ -169,25 +156,16 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
         if (distance(current_position, goal_position) > GOAL_THRESHOLD)
         {
             RobotState new_state = findBestTrajectory(current_x, current_y, current_angle, speed, rotation_speed, goal_position);
-            //            current_x = new_state.position.x;
-            //            current_y = new_state.position.y;
-            //            current_angle = new_state.theta;
             speed = new_state.v;
             rotation_speed = new_state.w;
             if (rotation_speed < 0.1)
                 goTranslate();
             else
                 goRotate();
-            // std::cout << speed << std::endl;
         }
         else
         {
             path_following_index++;
-            /*
-            speed = 0;
-            rotation_speed = 0;
-            robot.setRotationSpeed(rotation_speed);
-            robot.setTranslationSpeed(speed);*/
             std::cout << "At Goal" << std::endl;
         }
     }
@@ -340,20 +318,15 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
 
     if (rotation_speed == 0 && mapping == true)
     {
-        //        FILE *fp;
-        //        fp = fopen("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/distances.txt", "w");
-
         for (int i = 0; i < copyOfLaserData.numberOfScans; i++)
         {
 
-            //            fprintf(fp, "%f\n", copyOfLaserData.Data[i].scanDistance);
             if (copyOfLaserData.Data[i].scanDistance < 300 || copyOfLaserData.Data[i].scanDistance > 3000 || (copyOfLaserData.Data[i].scanDistance > 640 && copyOfLaserData.Data[i].scanDistance < 700))
             {
                 continue;
             }
             else
             {
-                //                && copyOfLaserData.Data[i].scanDistance > 640 && copyOfLaserData.Data[i].scanDistance < 700)
                 double scan_distance = copyOfLaserData.Data[i].scanDistance / 1000;
                 int point_y = -(current_y + scan_distance * sin((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
                 int point_x = (current_x + scan_distance * cos((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
@@ -361,7 +334,6 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
             }
         }
 
-        //        fclose(fp);
         FILE *fp;
         int u, v;
         fp = fopen("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/map.txt", "w");
@@ -380,26 +352,6 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
                 fprintf(fp, "%d\n", created_map[v][u]);
         }
         fclose(fp);
-        //            std::string temp_str;
-        //            std::ofstream file("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/map.txt");
-        //            if (file.is_open())
-        //            {
-
-        //                for (int i = 0; i < 500; ++i)
-        //                {
-        //                    for (int j = 0; j < 500; ++j)
-        //                    {
-
-        //                        std::string character = std::to_string(created_map[i][j]);
-        //                        if (character != "1")
-        //                            character = "_";
-        //                        temp_str += character;
-        //                    }
-        //                    file << temp_str << std::endl;
-        //                    temp_str.clear();
-        //                }
-        //                file.close();
-        //            }
     }
     updateLaserPicture = 1;
     update(); // tento prikaz prinuti prekreslit obrazovku.. zavola sa paintEvent funkcia
@@ -825,7 +777,7 @@ std::vector<RobotState> MainWindow::generateMotionSamples(double x, double y, do
     return samples;
 }
 
-double MainWindow::evaluateTrajectory(/*double x, double y, double theta, double v, double w,*/ RobotState end_state, Point2d goal_position)
+double MainWindow::evaluateTrajectory(RobotState end_state, Point2d goal_position)
 {
     double distance_to_goal = distance(end_state.position, goal_position);
     double distance_penalty = 1.0f * 10 / (1.0f + distance_to_goal);
@@ -837,7 +789,6 @@ double MainWindow::evaluateTrajectory(/*double x, double y, double theta, double
         if (obstacle_distance < OBSTACLE_THRESHOLD)
         {
             obstacle_penalty *= (obstacle_distance / OBSTACLE_THRESHOLD * 100);
-            //            std::cout << "Near wall" << std::endl;
         }
     }
     double orientation_penalty = 1.0f - abs(angleDifference(end_state.theta, atan2(goal_position.y - end_state.position.y, goal_position.x - end_state.position.x))) / M_PI;
@@ -854,7 +805,7 @@ RobotState MainWindow::findBestTrajectory(double x, double y, double theta, doub
     std::vector<RobotState> samples = generateMotionSamples(x, y, theta, v, w);
     for (const auto &sample : samples)
     {
-        double score = evaluateTrajectory(/*x, y, theta, v, w, */ sample, goal_position);
+        double score = evaluateTrajectory(sample, goal_position);
         file << sample.position.x << " " << sample.position.y << " " << sample.theta << " " << sample.v << " " << sample.w << " " << score << std::endl;
         if (score > best_score)
         {
@@ -862,7 +813,6 @@ RobotState MainWindow::findBestTrajectory(double x, double y, double theta, doub
             best_state = sample;
         }
     }
-    //    std::cout << best_state.v << " " << best_score << std::endl;
     file.close();
     return best_state;
 }
