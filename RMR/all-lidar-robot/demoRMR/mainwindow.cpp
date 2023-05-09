@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 {
 
     // tu je napevno nastavena ip. treba zmenit na to co ste si zadali do text boxu alebo nejaku inu pevnu. co bude spravna
-    ipaddress = "192.168.1.9"; //"192.168.1.15"; //"192.168.1.15"; // 192.168.1.11 127.0.0.1
+    ipaddress = "192.168.1.15"; //"192.168.1.15"; //"192.168.1.15"; // 192.168.1.11 127.0.0.1
     //  cap.open("http://192.168.1.11:8000/stream.mjpg");
     ui->setupUi(this);
     datacounter = 0;
@@ -150,26 +150,8 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
     }
     if (follow_created_path == true && path_following_index < path_points.size() - 1)
     {
-        //        is_navigating = false;
-        //        Point2d current_position = {current_x, current_y};
-        //        Point2d goal_position = {path_points.back().x, path_points.back().y};
-        //        if (distance(current_position, goal_position) > GOAL_THRESHOLD)
-        //        {
-        //            RobotState new_state = findBestTrajectory(current_x, current_y, current_angle, speed, rotation_speed, goal_position);
-        //            speed = new_state.v;
-        //            rotation_speed = new_state.w;
-        //            if (rotation_speed < 0.1)
-        //                goTranslate();
-        //            else
-        //                goRotate();
-        //        }
-        //        else
-        //        {
-        //            path_following_index++;
-        //            std::cout << "At Goal" << std::endl;
-        //        }
-        angle_goal = atan2(y_goal[position_index] - current_y, x_goal[position_index] - current_x);
-        distance_from_goal = sqrt(pow(x_goal[position_index] - current_x, 2) + pow(y_goal[position_index] - current_y, 2));
+        angle_goal = atan2(path_points[position_index].y - current_y, path_points[position_index].x - current_x);
+        distance_from_goal = sqrt(pow(path_points[position_index].x - current_x, 2) + pow(path_points[position_index].y - current_y, 2));
         if (distance_from_goal <= 0.1)
         {
             speed = 0;
@@ -183,8 +165,8 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
             else if (angle_goal < current_angle && ((current_angle - angle_goal) < M_PI))
                 regulateRotation(-1 * abs(current_angle - angle_goal));
             else
-                regulateRotation(abs(current_angle - angle_goal))
-                    goRotate();
+                regulateRotation(abs(current_angle - angle_goal));
+            goRotate();
 
             if (rotation_speed == 0)
             {
@@ -346,11 +328,12 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
         for (int i = 0; i < copyOfLaserData.numberOfScans; i++)
         {
 
-            if (copyOfLaserData.Data[i].scanDistance < 300 || copyOfLaserData.Data[i].scanDistance > 3000 || (copyOfLaserData.Data[i].scanDistance > 640 && copyOfLaserData.Data[i].scanDistance < 700))
-            {
-                continue;
-            }
-            else
+//            if (copyOfLaserData.Data[i].scanDistance < 300 || copyOfLaserData.Data[i].scanDistance > 3000 || (copyOfLaserData.Data[i].scanDistance > 640 && copyOfLaserData.Data[i].scanDistance < 700))
+//            {
+//                continue;
+//            }
+//            else
+            if (copyOfLaserData.Data[i].scanDistance > 300 || copyOfLaserData.Data[i].scanDistance < 3000)
             {
                 double scan_distance = copyOfLaserData.Data[i].scanDistance / 1000;
                 int point_y = -(current_y + scan_distance * sin((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
@@ -458,8 +441,8 @@ void MainWindow::getNewFrame()
 double MainWindow::regulateSpeed(double error_distance)
 {
     speed = 1000 * error_distance;
-    if (speed > 500)
-        speed = 500;
+    if (speed > 100)
+        speed = 100;
     return speed;
 }
 
@@ -680,7 +663,7 @@ void MainWindow::correctMap()
             {
                 std::string character = std::to_string(path_finding_map[i][j]);
                 if (character == "900")
-                    character = "N";
+                    character = "A";
                 temp_str += character;
             }
             file << temp_str << std::endl;
@@ -718,7 +701,7 @@ void MainWindow::on_pushButton_10_clicked()
             {
                 std::string character = std::to_string(path_finding_map[i][j]);
                 if (character == "900")
-                    character = "N";
+                    character = "A";
                 temp_str += character;
             }
             file << temp_str << std::endl;
@@ -736,7 +719,7 @@ void MainWindow::on_pushButton_10_clicked()
             {
                 std::string character = std::to_string(shortest_map[i][j]);
                 if (character == "900")
-                    character = "N";
+                    character = "A";
                 temp_str += character;
             }
             shortest_file << temp_str << std::endl;
@@ -852,6 +835,10 @@ void MainWindow::findShortestPath(int start_x, int start_y)
         {
             for (int j = -1; j <= 1; j++)
             {
+                if(i == 0 && j == 0)
+                {
+                    continue;
+                }
                 if (path_finding_map[start_x + i][start_y + j] < current_number)
                 {
                     current_number = path_finding_map[start_x + i][start_y + j];

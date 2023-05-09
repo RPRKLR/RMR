@@ -141,19 +141,19 @@ private:
     double forwardspeed;  // mm/s
     double rotationspeed; // omega/s
     bool mapping = true;
-    bool nav = true;
+    bool nav = false;
     bool create_map = false;
     bool follow_created_path = false;
     int path_following_index = 0;
     const double ROBOT_RADIUS = 0.01;
-    const double MAX_LINEAR_VELOCITY = 250;
-    const double MAX_ANGULAR_VELOCITY = M_PI / 4;
-    const double MAX_LINEAR_ACCELERATION = 25;
-    const double MAX_ANGULAR_ACCELERATION = (M_PI / 4 / 10);
+    const double MAX_LINEAR_VELOCITY = 100;
+    const double MAX_ANGULAR_VELOCITY = M_PI / 8;
+    const double MAX_LINEAR_ACCELERATION = 10;
+    const double MAX_ANGULAR_ACCELERATION = (M_PI / 8 / 10);
     const double GOAL_THRESHOLD = 0.1;
     const double OBSTACLE_THRESHOLD = 0.01;
     const double DT = 0.1;
-    bool is_navigating = true;
+    bool is_navigating = false;
     std::vector<Obstacle> obstacles;
 public slots:
     void setUiValues(double robotX, double robotY, double robotFi);
