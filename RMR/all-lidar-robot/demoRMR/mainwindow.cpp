@@ -10,6 +10,7 @@
 #include "map_loader.h"
 #include <queue>
 #include <cmath>
+#include <unordered_set>
 
 /// TOTO JE DEMO PROGRAM...AK SI HO NASIEL NA PC V LABAKU NEPREPISUJ NIC,ALE SKOPIRUJ SI MA NIEKAM DO INEHO FOLDERA
 ///  AK HO MAS Z GITU A ROBIS NA LABAKOVOM PC, TAK SI HO VLOZ DO FOLDERA KTORY JE JASNE ODLISITELNY OD TVOJICH KOLEGOV
@@ -19,7 +20,6 @@
 ///  AZ POTOM ZACNI ROBIT... AK TO NESPRAVIS, POJDU BODY DOLE... A NIE JEDEN,ALEBO DVA ALE BUDES RAD
 ///  AK SA DOSTANES NA SKUSKU
 
-using NodePtr = std::shared_ptr<Node>;
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
                                           ui(new Ui::MainWindow)
@@ -616,62 +616,62 @@ void MainWindow::floodAlgorithm(Point2d end_point)
     }
 }
 
-int MainWindow::findPath(Point2d start_position)
-{
-    int i = start_position.x, j = start_position.y, k, t = 0;
-    while (path_finding_map[i][j] != 2)
-    {
-        if (path_finding_map[i][j] == (path_finding_map[i + 1][j]) + 1)
-        {
-            k = i;
-            while (path_finding_map[k][j] == (path_finding_map[k + 1][j]) + 1)
-            {
-                k = k + 1;
-            }
-            pole[t++][0] = k;
-            pole[t - 1][1] = j;
-            i = k;
-        }
-        else if (path_finding_map[i][j] == (path_finding_map[i - 1][j]) + 1)
-        {
-            k = i;
-            while (path_finding_map[k][j] == (path_finding_map[k - 1][j]) + 1)
-            {
-                k = k - 1;
-            }
-            pole[t++][0] = k;
-            pole[t - 1][1] = j;
-            i = k;
-        }
-        else if (path_finding_map[i][j] == (path_finding_map[i][j - 1]) + 1)
-        {
-            k = j;
-            while (path_finding_map[i][k] == (path_finding_map[i][k - 1]) + 1)
-            {
-                k = k - 1;
-            }
-            pole[t++][0] = k;
-            pole[t - 1][1] = k;
-            j = k;
-        }
-        else if (path_finding_map[i][j] == (path_finding_map[i][j + 1]) + 1)
-        {
-            k = j;
-            while (path_finding_map[i][k] == (path_finding_map[i][k + 1]) + 1)
-            {
-                k = k + 1;
-            }
-            pole[t++][0] = i;
-            pole[t - 1][1] = k;
-            j = k;
-        }
-        else
-            break;
-    }
-    printf("\n%d", path_finding_map[i][j]);
+//int MainWindow::findPath(Point2d start_position)
+//{
+//    int i = start_position.x, j = start_position.y, k, t = 0;
+//    while (path_finding_map[i][j] != 2)
+//    {
+//        if (path_finding_map[i][j] == (path_finding_map[i + 1][j]) + 1)
+//        {
+//            k = i;
+//            while (path_finding_map[k][j] == (path_finding_map[k + 1][j]) + 1)
+//            {
+//                k = k + 1;
+//            }
+//            pole[t++][0] = k;
+//            pole[t - 1][1] = j;
+//            i = k;
+//        }
+//        else if (path_finding_map[i][j] == (path_finding_map[i - 1][j]) + 1)
+//        {
+//            k = i;
+//            while (path_finding_map[k][j] == (path_finding_map[k - 1][j]) + 1)
+//            {
+//                k = k - 1;
+//            }
+//            pole[t++][0] = k;
+//            pole[t - 1][1] = j;
+//            i = k;
+//        }
+//        else if (path_finding_map[i][j] == (path_finding_map[i][j - 1]) + 1)
+//        {
+//            k = j;
+//            while (path_finding_map[i][k] == (path_finding_map[i][k - 1]) + 1)
+//            {
+//                k = k - 1;
+//            }
+//            pole[t++][0] = k;
+//            pole[t - 1][1] = k;
+//            j = k;
+//        }
+//        else if (path_finding_map[i][j] == (path_finding_map[i][j + 1]) + 1)
+//        {
+//            k = j;
+//            while (path_finding_map[i][k] == (path_finding_map[i][k + 1]) + 1)
+//            {
+//                k = k + 1;
+//            }
+//            pole[t++][0] = i;
+//            pole[t - 1][1] = k;
+//            j = k;
+//        }
+//        else
+//            break;
+//    }
+//    printf("\n%d", path_finding_map[i][j]);
 
-    return t;
-}
+//    return t;
+//}
 
 void MainWindow::correctMap()
 {
@@ -721,14 +721,13 @@ void MainWindow::correctMap()
     std::ofstream file("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/corrected_map.txt");
     if (file.is_open())
     {
-
         for (int i = 0; i < 150; ++i)
         {
             for (int j = 0; j < 150; ++j)
             {
                 std::string character = std::to_string(path_finding_map[i][j]);
-                //                if (character == "900")
-                //                    character = "A";
+                                if (character == "900")
+                                    character = "N";
                 temp_str += character;
                 // std::string character;
                 // if (path_finding_map[i][j] == 0)
@@ -759,14 +758,15 @@ void MainWindow::on_pushButton_10_clicked()
     MapLoader.load_map(filename, map);
     readMap();
     correctMap();
+//    dijkstra(10,10,10,92);
     floodAlgorithm(end_point);
-    int pt = findPath(start_point);
-    std::cout << pt << std::endl;
-    printf("%d\n", pt);
-    for (int r = 0; r < pt; r++)
-    {
-        printf("x=%d y=%d\n", pole[r][0], pole[r][1]);
-    }
+//    int pt = findPath(start_point);
+//    std::cout << pt << std::endl;
+//    printf("%d\n", pt);
+//    for (int r = 0; r < pt; r++)
+//    {
+//        printf("x=%d y=%d\n", pole[r][0], pole[r][1]);
+//    }
     std::string temp_str;
     std::ofstream file("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/flood.txt");
     if (file.is_open())
@@ -778,7 +778,7 @@ void MainWindow::on_pushButton_10_clicked()
             {
                 std::string character = std::to_string(path_finding_map[i][j]);
                 if (character == "900")
-                    character = "A";
+                    character = "N";
                 temp_str += character;
                 // std::string character;
                 // if (path_finding_map[i][j] == 0)
@@ -797,8 +797,25 @@ void MainWindow::on_pushButton_10_clicked()
         }
         file.close();
     }
-    aStar(start_point, end_point, path_finding_map);
+    std::pair<int, int> start = {10,10};
+    std::pair<int, int> goal = {10, 92};
+    std::vector<std::vector<int>> grid;
+    std::vector<int> temp_grid;
+    for(int i = 0; i< 150; ++i)
+    {
+        for(int j = 0; j< 150; ++j)
+        {
+            temp_grid.push_back(path_finding_map[i][j]);
+        }
+        grid.push_back(temp_grid);
+        temp_grid.clear();
+    }
+    vector<pair<int, int>> path = findPath(grid, start, goal);
     temp_str.clear();
+    for (auto& p : path) {
+        cout << "(" << p.first << ", " << p.second << ") ";
+    }
+    cout << endl;
     std::ofstream astar_file("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/astar.txt");
     if (astar_file.is_open())
     {
@@ -809,7 +826,7 @@ void MainWindow::on_pushButton_10_clicked()
             {
                 std::string character = std::to_string(path_finding_map[i][j]);
                 if (character == "900")
-                    character = "A";
+                    character = "N";
                 temp_str += character;
                 // std::string character;
                 // if (path_finding_map[i][j] == 0)
@@ -922,152 +939,79 @@ RobotState MainWindow::findBestTrajectory(double x, double y, double theta, doub
     return best_state;
 }
 
-bool MainWindow::isWall(int x, int y)
-{
-    if (x < 0 || x >= 150 || y < 0 || y >= 150)
-    {
-        return true;
-    }
-    if (path_finding_map[x][y] == 1)
-    {
-        return true;
-    }
-    return false;
+
+bool MainWindow::isValid(int x, int y) {
+    return x >= 0 && x < 150 && y >= 0 && y < 150;
 }
 
-std::vector<NodePtr> MainWindow::getNeighbors(int x, int y, int map[150][150])
-{
-    std::vector<NodePtr> neighbors;
-
-    if (x > 0 && map[x - 1][y] != 1 && map[x - 1][y] != 900)
-    {
-        neighbors.push_back(std::make_shared<Node>(x - 1, y));
-    }
-    if (y > 0 && map[x][y - 1] != 1 && map[x][y - 1] != 900)
-    {
-        neighbors.push_back(std::make_shared<Node>(x, y - 1));
-    }
-    if (x < 149 && map[x + 1][y] != 1 && map[x + 1][y] != 900)
-    {
-        neighbors.push_back(std::make_shared<Node>(x + 1, y));
-    }
-    if (y < 149 && map[x][y + 1] != 1 && map[x][y + 1] != 900)
-    {
-        neighbors.push_back(std::make_shared<Node>(x, y + 1));
-    }
-
-    return neighbors;
+bool MainWindow::isWalkable(int x, int y, const vector<vector<int>>& map) {
+    return map[x][y] != WALL_VALUE && map[x][y] != NO_GO_VALUE;
 }
 
-std::vector<NodePtr> MainWindow::getPath(NodePtr end_node)
-{
-    std::vector<NodePtr> path;
+int MainWindow::heuristic(int x1, int y1, int x2, int y2) {
+    return abs(x1 - x2) + abs(y1 - y2);
+}
 
-    NodePtr current_node = end_node;
-    while (current_node != nullptr)
-    {
-        path.push_back(current_node);
-        current_node->parent;
+vector<pair<int, int>> MainWindow::getPath(Node* node) {
+    vector<pair<int, int>> path;
+    while (node != nullptr) {
+        path.push_back({node->x, node->y});
+        Node* par = node->parent;
+        node = node->parent;
     }
-
-    std::reverse(path.begin(), path.end());
-
+    reverse(path.begin(), path.end());
     return path;
 }
 
-void MainWindow::deleteNodes(vector<Node *> &nodes)
-{
-    for (Node *node : nodes)
-    {
-        delete node;
-    }
+vector<pair<int, int>> MainWindow::findPath(const vector<vector<int>>& grid, pair<int, int> start, pair<int, int> goal) {
+    priority_queue<Node> openList;
+    vector<vector<Node*>> nodes(150, vector<Node*>(150, nullptr));
 
-    nodes.clear();
-}
+    int startX = start.first;
+    int startY = start.second;
+    int goalX = goal.first;
+    int goalY = goal.second;
 
-std::vector<NodePtr> MainWindow::aStar(Point2d start, Point2d goal, int map[150][150])
-{
-    std::vector<NodePtr> path;
+    Node* startNode = new Node(startX, startY, 0, heuristic(startX, startY, goalX, goalY), nullptr);
+    nodes[startX][startY] = startNode;
+    openList.push(*startNode);
 
-    NodePtr start_node = std::make_shared<Node>(start.x, start.y);
-    NodePtr goal_node = std::make_shared<Node>(goal.x, goal.y);
+    while (!openList.empty()) {
+        Node current = openList.top();
+        openList.pop();
 
-    std::vector<NodePtr> open_set_nodes;
-    std::vector<NodePtr> closed_set;
-
-    std::priority_queue<NodePtr, std::vector<NodePtr>, std::function<bool(NodePtr, NodePtr)>> open_set(
-        [](NodePtr a, NodePtr b) -> bool
-        { return a->f_cost > b->f_cost; });
-
-    start_node->g_cost = 0;
-    start_node->h_cost = abs(start.x - goal.x) + abs(start.y - goal.y);
-    start_node->f_cost = start_node->g_cost + start_node->h_cost;
-
-    open_set.push(start_node);
-    open_set_nodes.push_back(start_node);
-
-    while (!open_set.empty())
-    {
-        std::cout << "workwork" << std::endl;
-        NodePtr current_node = open_set.top();
-        open_set.pop();
-
-        if (*current_node == *goal_node)
-        {
-            path = getPath(current_node);
-            break;
+        if (current.x == goalX && current.y == goalY) {
+            return getPath(&current);
         }
 
-        closed_set.push_back(current_node);
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                if (i == 0 && j == 0) {
+                    continue;
+                }
 
-        std::vector<NodePtr> neighbors = getNeighbors(current_node->x, current_node->y, map);
-        for (NodePtr &neighbor : neighbors)
-        {
-            if (std::find_if(closed_set.begin(), closed_set.end(),
-                             [neighbor](const NodePtr &n) -> bool
-                             { return *n == *neighbor; }) != closed_set.end())
-            {
-                continue;
-            }
+                int neighborX = current.x + i;
+                int neighborY = current.y + j;
+                bool is_valid = isValid(neighborX, neighborY);
+                if (is_valid && (isWalkable(neighborX, neighborY, grid))) {
+                    int tentativeG = current.g + 1;
 
-            int tentative_g_cost = current_node->g_cost + 1;
-            bool neighbor_in_open_set = std::find_if(open_set_nodes.begin(), open_set_nodes.end(),
-                                                     [neighbor](const NodePtr &n) -> bool
-                                                     { return *n == *neighbor; }) != open_set_nodes.end();
-            if (!neighbor_in_open_set)
-            {
-                neighbor->g_cost = tentative_g_cost;
-                neighbor->h_cost = abs(neighbor->x - goal.x) + abs(neighbor->y - goal.y);
-                neighbor->f_cost = neighbor->g_cost + neighbor->h_cost;
-                neighbor->parent = current_node->parent;
-                open_set.push(neighbor);
-                open_set_nodes.push_back(neighbor);
+                    Node* neighbor = nodes[neighborX][neighborY];
+                    if (neighbor == nullptr) {
+                        int neighborH = heuristic(neighborX, neighborY, goalX, goalY);
+                        neighbor = new Node(neighborX, neighborY, tentativeG, neighborH, &current);
+                        nodes[neighborX][neighborY] = neighbor;
+                        openList.push(*neighbor);
+                    }
+                    else if (tentativeG < neighbor->g) {
+                        neighbor->g = tentativeG;
+                        neighbor->f = tentativeG + neighbor->h;
+                        neighbor->parent = &current;
+                        openList.push(*neighbor);
+                    }
+                }
             }
-            else if (tentative_g_cost < neighbor->g_cost)
-            {
-                neighbor->g_cost = tentative_g_cost;
-                neighbor->f_cost = neighbor->g_cost + neighbor->h_cost;
-                neighbor->parent = current_node->parent;
-            }
-        }
-
-        // Remove the current node from the open set nodes
-        auto it = std::find_if(open_set_nodes.begin(), open_set_nodes.end(),
-                               [current_node](const NodePtr &n) -> bool
-                               { return *n == *current_node; });
-        if (it != open_set_nodes.end())
-        {
-            open_set_nodes.erase(it);
         }
     }
-    std::cout << "end" << std::endl;
-    return path;
-}
-
-// Define a function to calculate the Euclidean distance between two nodes
-double MainWindow::euclidean_distance(pair<int, int> a, pair<int, int> b)
-{
-    int dx = a.first - b.first;
-    int dy = a.second - b.second;
-    return sqrt(dx * dx + dy * dy);
+    return {}; // No path found
 }

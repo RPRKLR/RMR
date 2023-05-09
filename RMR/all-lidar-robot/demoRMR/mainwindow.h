@@ -46,17 +46,21 @@ typedef struct
     double w;
 } RobotState;
 
-struct Node
-{
+struct Pointt {
     int x, y;
-    int g_cost, h_cost, f_cost;
-    Node *parent;
+    Pointt() {}
+    Pointt(int x, int y) : x(x), y(y) {}
+};
 
-    Node(int x, int y) : x(x), y(y), g_cost(0), h_cost(0), f_cost(0), parent(nullptr) {}
+struct Node {
+    int x, y, f, g, h;
+    Node* parent;
 
-    bool operator==(const Node &other) const
-    {
-        return x == other.x && y == other.y;
+    Node(int x_, int y_, int g_, int h_, Node* parent_) :
+        x(x_), y(y_), f(g_ + h_), g(g_), h(h_), parent(parent_) {}
+
+    bool operator<(const Node& other) const {
+        return f > other.f;
     }
 };
 
@@ -70,6 +74,10 @@ public:
     //  cv::VideoCapture cap;
     int created_map[500][500];
     int path_finding_map[150][150];
+    int dist[150][150];
+    bool visited[150][150];
+    int dx[4] = {1, 0, -1, 0}; // possible x-moves
+    int dy[4] = {0, 1, 0, -1}; // possible y-moves
     TMapArea map;
     int actIndex;
     //    cv::Mat frame[3];
@@ -89,7 +97,7 @@ public:
     double regulateRotation(double error_angle);
     void floodAlgorithm(Point2d end_point);
     void readMap();
-    int findPath(Point2d start_position);
+//    int findPath(Point2d start_position);
     void correctMap();
     // dwa TEST
     double distance(Point2d p1, Point2d p2);
@@ -101,12 +109,27 @@ public:
     // change the obstacles;
     double calculateCost(double x, double y, double theta, Point2d goal_pos, double obstacles);
     void dwa(double x, double y, double theta, double obstacles, Point2d goal_pos, std::vector<double> velocity_samples, std::vector<double> angular_velocity_samples, double max_linear_velocity, double max_angular_velocity, double max_linear_acceleration, double max_angular_acceleration);
-    std::vector<std::shared_ptr<Node>> aStar(Point2d start, Point2d goal, int map[150][150]);
-    bool isWall(int x, int y);
-    std::vector<std::shared_ptr<Node>> getNeighbors(int x, int y, int map[150][150]);
-    std::vector<std::shared_ptr<Node>> getPath(std::shared_ptr<Node> end_node);
-    void deleteNodes(vector<Node *> &nodes);
-    double euclidean_distance(std::pair<int, int> a, std::pair<int, int> b);
+//    std::vector<std::shared_ptr<Node>> aStar(Point2d start, Point2d goal, int map[150][150]);
+//    bool isWall(int x, int y);
+//    std::vector<std::shared_ptr<Node>> getNeighbors(int x, int y, int map[150][150]);
+//    std::vector<std::shared_ptr<Node>> getPath(std::shared_ptr<Node> end_node);
+//    void deleteNodes(vector<Node *> &nodes);
+//    double euclidean_distance(std::pair<int, int> a, std::pair<int, int> b);
+//    bool is_valid(int x, int y);
+//    int heuristic(int x, int y, int goal_x, int goal_y);
+//    void dijkstra(int start_x, int start_y, int goal_x,int goal_y);
+    std::vector<Node*> aStar(Node* start, Node* goal, int map[150][150]);
+
+
+
+    bool isValid(int x, int y);
+    bool isWalkable(int x, int y, const vector<vector<int>>& map);
+    int heuristic(int x1, int y1, int x2, int y2);
+    vector<pair<int, int>> getPath(Node* node);
+    vector<pair<int, int>> findPath(const vector<vector<int>>& grid, pair<int, int> start, pair<int, int> goal);
+
+
+
 private slots:
     void on_pushButton_9_clicked();
 
@@ -170,6 +193,7 @@ private:
     const int WALL_VALUE = 1;
     const int GOAL_VALUE = 2;
     const int NO_GO_VALUE = 900;
+    const int GOAL = 2;
     std::vector<double> velocity_samples = {25, 50, 75, 100, 125, 150, 175, 200, 225, 250};
     std::vector<double> angular_velocity_samples = {-M_PI / 4, M_PI / 4};
     bool is_navigating = true;
