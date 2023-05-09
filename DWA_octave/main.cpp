@@ -156,8 +156,8 @@ int main()
 
     // Set goal position
     Point goal_position;
-    goal_position.x = -23.0;
-    goal_position.y = 39.0;
+    goal_position.x = -7.0;
+    goal_position.y = 8.0;
 
     ofstream file;
     file.open("positions.txt");

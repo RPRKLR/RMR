@@ -20,7 +20,6 @@
 ///  AZ POTOM ZACNI ROBIT... AK TO NESPRAVIS, POJDU BODY DOLE... A NIE JEDEN,ALEBO DVA ALE BUDES RAD
 ///  AK SA DOSTANES NA SKUSKU
 
-
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
                                           ui(new Ui::MainWindow)
 {
@@ -318,7 +317,11 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
         {
 
             //            fprintf(fp, "%f\n", copyOfLaserData.Data[i].scanDistance);
-            if (copyOfLaserData.Data[i].scanDistance > 145 && copyOfLaserData.Data[i].scanDistance < 3000)
+            if (copyOfLaserData.Data[i].scanDistance < 300 || copyOfLaserData.Data[i].scanDistance > 3000 || (copyOfLaserData.Data[i].scanDistance > 640 && copyOfLaserData.Data[i].scanDistance < 700))
+            {
+                continue;
+            }
+            else
             {
                 //                && copyOfLaserData.Data[i].scanDistance > 640 && copyOfLaserData.Data[i].scanDistance < 700)
                 double scan_distance = copyOfLaserData.Data[i].scanDistance / 1000;
@@ -616,63 +619,6 @@ void MainWindow::floodAlgorithm(Point2d end_point)
     }
 }
 
-//int MainWindow::findPath(Point2d start_position)
-//{
-//    int i = start_position.x, j = start_position.y, k, t = 0;
-//    while (path_finding_map[i][j] != 2)
-//    {
-//        if (path_finding_map[i][j] == (path_finding_map[i + 1][j]) + 1)
-//        {
-//            k = i;
-//            while (path_finding_map[k][j] == (path_finding_map[k + 1][j]) + 1)
-//            {
-//                k = k + 1;
-//            }
-//            pole[t++][0] = k;
-//            pole[t - 1][1] = j;
-//            i = k;
-//        }
-//        else if (path_finding_map[i][j] == (path_finding_map[i - 1][j]) + 1)
-//        {
-//            k = i;
-//            while (path_finding_map[k][j] == (path_finding_map[k - 1][j]) + 1)
-//            {
-//                k = k - 1;
-//            }
-//            pole[t++][0] = k;
-//            pole[t - 1][1] = j;
-//            i = k;
-//        }
-//        else if (path_finding_map[i][j] == (path_finding_map[i][j - 1]) + 1)
-//        {
-//            k = j;
-//            while (path_finding_map[i][k] == (path_finding_map[i][k - 1]) + 1)
-//            {
-//                k = k - 1;
-//            }
-//            pole[t++][0] = k;
-//            pole[t - 1][1] = k;
-//            j = k;
-//        }
-//        else if (path_finding_map[i][j] == (path_finding_map[i][j + 1]) + 1)
-//        {
-//            k = j;
-//            while (path_finding_map[i][k] == (path_finding_map[i][k + 1]) + 1)
-//            {
-//                k = k + 1;
-//            }
-//            pole[t++][0] = i;
-//            pole[t - 1][1] = k;
-//            j = k;
-//        }
-//        else
-//            break;
-//    }
-//    printf("\n%d", path_finding_map[i][j]);
-
-//    return t;
-//}
-
 void MainWindow::correctMap()
 {
     for (int i = 4; i < 35; ++i)
@@ -726,20 +672,9 @@ void MainWindow::correctMap()
             for (int j = 0; j < 150; ++j)
             {
                 std::string character = std::to_string(path_finding_map[i][j]);
-                                if (character == "900")
-                                    character = "N";
+                if (character == "900")
+                    character = "N";
                 temp_str += character;
-                // std::string character;
-                // if (path_finding_map[i][j] == 0)
-                //     character = 🟦;
-                // else if (path_finding_map[i][j] == 1)
-                //     character = 🟥;
-                // else if (path_finding_map[i][j] == 900)
-                //     character == ⬜;
-                // else if (path_finding_map[i][j] == 2)
-                //     character = 🟩;
-                // else
-                //     character = 😂;
             }
             file << temp_str << std::endl;
             temp_str.clear();
@@ -751,22 +686,20 @@ void MainWindow::correctMap()
 void MainWindow::on_pushButton_10_clicked()
 {
 
-    Point2d end_point = {10, 92};
-    Point2d start_point = {10, 10};
+    Point2d end_point = {103, 92};
     map_loader MapLoader;
     char filename[65] = "/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/priestor.txt";
     MapLoader.load_map(filename, map);
     readMap();
     correctMap();
-//    dijkstra(10,10,10,92);
+    for (int i = 0; i < 150; ++i)
+    {
+        for (int j = 0; j < 150; ++j)
+        {
+            shortest_map[i][j] = path_finding_map[i][j];
+        }
+    }
     floodAlgorithm(end_point);
-//    int pt = findPath(start_point);
-//    std::cout << pt << std::endl;
-//    printf("%d\n", pt);
-//    for (int r = 0; r < pt; r++)
-//    {
-//        printf("x=%d y=%d\n", pole[r][0], pole[r][1]);
-//    }
     std::string temp_str;
     std::ofstream file("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/flood.txt");
     if (file.is_open())
@@ -780,65 +713,24 @@ void MainWindow::on_pushButton_10_clicked()
                 if (character == "900")
                     character = "N";
                 temp_str += character;
-                // std::string character;
-                // if (path_finding_map[i][j] == 0)
-                //     character = 🟦;
-                // else if (path_finding_map[i][j] == 1)
-                //     character = 🟥;
-                // else if (path_finding_map[i][j] == 900)
-                //     character == ⬜;
-                // else if (path_finding_map[i][j] == 2)
-                //     character = 🟩;
-                // else
-                //     character = 😂;
             }
             file << temp_str << std::endl;
             temp_str.clear();
         }
         file.close();
     }
-    std::pair<int, int> start = {10,10};
-    std::pair<int, int> goal = {10, 92};
-    std::vector<std::vector<int>> grid;
-    std::vector<int> temp_grid;
-    for(int i = 0; i< 150; ++i)
-    {
-        for(int j = 0; j< 150; ++j)
-        {
-            temp_grid.push_back(path_finding_map[i][j]);
-        }
-        grid.push_back(temp_grid);
-        temp_grid.clear();
-    }
-    vector<pair<int, int>> path = findPath(grid, start, goal);
-    temp_str.clear();
-    for (auto& p : path) {
-        cout << "(" << p.first << ", " << p.second << ") ";
-    }
-    cout << endl;
+    findShortestPath(10, 10);
     std::ofstream astar_file("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/astar.txt");
     if (astar_file.is_open())
     {
-
         for (int i = 0; i < 150; ++i)
         {
             for (int j = 0; j < 150; ++j)
             {
-                std::string character = std::to_string(path_finding_map[i][j]);
+                std::string character = std::to_string(shortest_map[i][j]);
                 if (character == "900")
                     character = "N";
                 temp_str += character;
-                // std::string character;
-                // if (path_finding_map[i][j] == 0)
-                //     character = 🟦;
-                // else if (path_finding_map[i][j] == 1)
-                //     character = 🟥;
-                // else if (path_finding_map[i][j] == 900)
-                //     character == ⬜;
-                // else if (path_finding_map[i][j] == 2)
-                //     character = 🟩;
-                // else
-                //     character = 😂;
             }
             astar_file << temp_str << std::endl;
             temp_str.clear();
@@ -939,79 +831,31 @@ RobotState MainWindow::findBestTrajectory(double x, double y, double theta, doub
     return best_state;
 }
 
-
-bool MainWindow::isValid(int x, int y) {
-    return x >= 0 && x < 150 && y >= 0 && y < 150;
-}
-
-bool MainWindow::isWalkable(int x, int y, const vector<vector<int>>& map) {
-    return map[x][y] != WALL_VALUE && map[x][y] != NO_GO_VALUE;
-}
-
-int MainWindow::heuristic(int x1, int y1, int x2, int y2) {
-    return abs(x1 - x2) + abs(y1 - y2);
-}
-
-vector<pair<int, int>> MainWindow::getPath(Node* node) {
-    vector<pair<int, int>> path;
-    while (node != nullptr) {
-        path.push_back({node->x, node->y});
-        Node* par = node->parent;
-        node = node->parent;
-    }
-    reverse(path.begin(), path.end());
-    return path;
-}
-
-vector<pair<int, int>> MainWindow::findPath(const vector<vector<int>>& grid, pair<int, int> start, pair<int, int> goal) {
-    priority_queue<Node> openList;
-    vector<vector<Node*>> nodes(150, vector<Node*>(150, nullptr));
-
-    int startX = start.first;
-    int startY = start.second;
-    int goalX = goal.first;
-    int goalY = goal.second;
-
-    Node* startNode = new Node(startX, startY, 0, heuristic(startX, startY, goalX, goalY), nullptr);
-    nodes[startX][startY] = startNode;
-    openList.push(*startNode);
-
-    while (!openList.empty()) {
-        Node current = openList.top();
-        openList.pop();
-
-        if (current.x == goalX && current.y == goalY) {
-            return getPath(&current);
-        }
-
-        for (int i = -1; i <= 1; i++) {
-            for (int j = -1; j <= 1; j++) {
-                if (i == 0 && j == 0) {
-                    continue;
+void MainWindow::findShortestPath(int start_x, int start_y)
+{
+    int counter = 1;
+    int current_number = path_finding_map[start_x][start_y];
+    while (current_number != 2)
+    {
+        for (int i = -1; i <= 1; i++)
+        {
+            for (int j = -1; j <= 1; j++)
+            {
+                if (path_finding_map[start_x + i][start_y + j] < current_number)
+                {
+                    current_number = path_finding_map[start_x + i][start_y + j];
+                    shortest_map[start_x + i][start_y + j] = counter;
+                    counter++;
+                    start_x += i;
+                    start_y += j;
                 }
-
-                int neighborX = current.x + i;
-                int neighborY = current.y + j;
-                bool is_valid = isValid(neighborX, neighborY);
-                if (is_valid && (isWalkable(neighborX, neighborY, grid))) {
-                    int tentativeG = current.g + 1;
-
-                    Node* neighbor = nodes[neighborX][neighborY];
-                    if (neighbor == nullptr) {
-                        int neighborH = heuristic(neighborX, neighborY, goalX, goalY);
-                        neighbor = new Node(neighborX, neighborY, tentativeG, neighborH, &current);
-                        nodes[neighborX][neighborY] = neighbor;
-                        openList.push(*neighbor);
-                    }
-                    else if (tentativeG < neighbor->g) {
-                        neighbor->g = tentativeG;
-                        neighbor->f = tentativeG + neighbor->h;
-                        neighbor->parent = &current;
-                        openList.push(*neighbor);
-                    }
+                if (path_finding_map[start_x + i][start_y + j] == 2)
+                {
+                    current_number = path_finding_map[start_x + i][start_y + j];
+                    shortest_map[start_x + i][start_y + j] = counter;
+                    counter++;
                 }
             }
         }
     }
-    return {}; // No path found
 }
