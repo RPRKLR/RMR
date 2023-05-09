@@ -35,6 +35,12 @@ typedef struct
 
 typedef struct
 {
+    double x;
+    double y;
+} Pointt;
+
+typedef struct
+{
     Point2d coordinate;
 } Obstacle;
 
@@ -57,6 +63,7 @@ public:
     int created_map[500][500];
     int path_finding_map[150][150];
     int shortest_map[150][150];
+    std::vector<Point2d> path_points;
     TMapArea map;
     int actIndex;
     //    cv::Mat frame[3];
@@ -136,6 +143,8 @@ private:
     bool mapping = true;
     bool nav = true;
     bool create_map = false;
+    bool follow_created_path = false;
+    int path_following_index = 0;
     const double ROBOT_RADIUS = 0.01;
     const double MAX_LINEAR_VELOCITY = 250;
     const double MAX_ANGULAR_VELOCITY = M_PI / 4;

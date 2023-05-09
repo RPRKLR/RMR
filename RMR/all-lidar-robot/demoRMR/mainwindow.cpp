@@ -161,6 +161,36 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
             std::cout << "At Goal" << std::endl;
         }
     }
+    if (follow_created_path == true && path_following_index < path_points.size() - 1)
+    {
+        is_navigating = false;
+        Point2d current_position = {current_x, current_y};
+        Point2d goal_position = {path_points.back().x, path_points.back().y};
+        if (distance(current_position, goal_position) > GOAL_THRESHOLD)
+        {
+            RobotState new_state = findBestTrajectory(current_x, current_y, current_angle, speed, rotation_speed, goal_position);
+            //            current_x = new_state.position.x;
+            //            current_y = new_state.position.y;
+            //            current_angle = new_state.theta;
+            speed = new_state.v;
+            rotation_speed = new_state.w;
+            if (rotation_speed < 0.1)
+                goTranslate();
+            else
+                goRotate();
+            // std::cout << speed << std::endl;
+        }
+        else
+        {
+            path_following_index++;
+            /*
+            speed = 0;
+            rotation_speed = 0;
+            robot.setRotationSpeed(rotation_speed);
+            robot.setTranslationSpeed(speed);*/
+            std::cout << "At Goal" << std::endl;
+        }
+    }
 
     //    if (position_index < (sizeof(y_goal) / sizeof(y_goal[0])) && nav)
     //    {
@@ -280,7 +310,7 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
     {
         if (counter % 5 == 0)
         {
-            if (laser_scan.scanDistance > 100 && laser_scan.scanDistance < 3000)
+            if (laser_scan.scanDistance > 100 && laser_scan.scanDistance < 3000 && rotation_speed == 0)
             {
                 Point2d coordinate = {laser_scan.scanDistance / 1000 * cos(laser_scan.scanAngle),
                                       laser_scan.scanDistance / 1000 * sin(laser_scan.scanAngle)};
@@ -720,8 +750,8 @@ void MainWindow::on_pushButton_10_clicked()
         file.close();
     }
     findShortestPath(10, 10);
-    std::ofstream astar_file("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/astar.txt");
-    if (astar_file.is_open())
+    std::ofstream shortest_file("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/shortest_path.txt");
+    if (shortest_file.is_open())
     {
         for (int i = 0; i < 150; ++i)
         {
@@ -732,13 +762,19 @@ void MainWindow::on_pushButton_10_clicked()
                     character = "N";
                 temp_str += character;
             }
-            astar_file << temp_str << std::endl;
+            shortest_file << temp_str << std::endl;
             temp_str.clear();
         }
-        astar_file.close();
+        shortest_file.close();
     }
-
+    std::ofstream path_file("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/path.txt");
+    for (auto &coordinate : path_points)
+    {
+        path_file << coordinate.x << " " << coordinate.y << "\n";
+    }
+    path_file.close();
     std::cout << "Done with the flood";
+    follow_created_path = true;
 }
 
 void MainWindow::on_pushButton_11_clicked()
@@ -845,6 +881,10 @@ void MainWindow::findShortestPath(int start_x, int start_y)
                 {
                     current_number = path_finding_map[start_x + i][start_y + j];
                     shortest_map[start_x + i][start_y + j] = counter;
+                    Point2d temp_point;
+                    temp_point.x = (double)((start_x + i) * 4) / 100;
+                    temp_point.y = (double)((start_y + j) * 4) / 100;
+                    path_points.push_back(temp_point);
                     counter++;
                     start_x += i;
                     start_y += j;
@@ -854,6 +894,10 @@ void MainWindow::findShortestPath(int start_x, int start_y)
                     current_number = path_finding_map[start_x + i][start_y + j];
                     shortest_map[start_x + i][start_y + j] = counter;
                     counter++;
+                    Point2d temp_point;
+                    temp_point.x = (double)((start_x + i) * 4) / 100;
+                    temp_point.y = (double)((start_y + j) * 4) / 100;
+                    path_points.push_back(temp_point);
                 }
             }
         }
