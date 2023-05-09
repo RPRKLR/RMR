@@ -136,8 +136,8 @@ private:
     // I used unsigned data for the old encounter data, so I do not have to deal with overflows
     unsigned short old_left_encounter, old_right_encounter;
     int speed = 0, position_index = 0;
-    double x_goal[5] = {0, 0, 0, 0, 1};
-    double y_goal[5] = {0.5, 1, 2.0, 2.5, 2.5};
+    double x_goal[5] = {0};
+    double y_goal[5] = {0.5};
     double forwardspeed;  // mm/s
     double rotationspeed; // omega/s
     bool mapping = true;
