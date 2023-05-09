@@ -92,6 +92,8 @@ public:
     RobotState findBestTrajectory(double x, double y, double theta, double v, double w, Point2d goal_position);
     void dwa(double x, double y, double theta, double obstacles, Point2d goal_pos, std::vector<double> velocity_samples, std::vector<double> angular_velocity_samples, double max_linear_velocity, double max_angular_velocity, double max_linear_acceleration, double max_angular_acceleration);
     void findShortestPath(int start_x, int start_y);
+    std::vector<Point2d> clearPath();
+
 
 private slots:
     void on_pushButton_9_clicked();
@@ -136,8 +138,8 @@ private:
     // I used unsigned data for the old encounter data, so I do not have to deal with overflows
     unsigned short old_left_encounter, old_right_encounter;
     int speed = 0, position_index = 0;
-    double x_goal[5] = {0};
-    double y_goal[5] = {0.5};
+    double x_goal[1] = {0};
+    double y_goal[1] = {1.5};
     double forwardspeed;  // mm/s
     double rotationspeed; // omega/s
     bool mapping = true;

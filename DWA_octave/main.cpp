@@ -150,14 +150,14 @@ int main()
     RobotState current_state;
     current_state.position.x = 0.0;
     current_state.position.y = 0.0;
-    current_state.orientation = 0.0;
+    current_state.orientation = 0;
     current_state.linear_velocity = 1.0;
     current_state.angular_velocity = 0.0;
 
     // Set goal position
     Point goal_position;
-    goal_position.x = -7.0;
-    goal_position.y = 8.0;
+    goal_position.x = -3.0;
+    goal_position.y = 4.0;
 
     ofstream file;
     file.open("positions.txt");

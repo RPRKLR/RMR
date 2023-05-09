@@ -148,33 +148,8 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
             std::cout << "At Goal" << std::endl;
         }
     }
-    if (follow_created_path == true && path_following_index < path_points.size() - 1)
+    if (follow_created_path == true && path_following_index < path_points.size())
     {
-//        angle_goal = atan2(path_points[position_index].y - current_y, path_points[position_index].x - current_x);
-//        distance_from_goal = sqrt(pow(path_points[position_index].x - current_x, 2) + pow(path_points[position_index].y - current_y, 2));
-//        if (distance_from_goal <= 0.1)
-//        {
-//            speed = 0;
-//            path_following_index++;
-//            goTranslate();
-//        }
-//        else
-//        {
-//            if (abs(angle_goal - current_angle) < 0.09 || abs(current_angle - angle_goal) > 2 * M_PI - 0.09)
-//                rotation_speed = 0;
-//            else if (angle_goal < current_angle && ((current_angle - angle_goal) < M_PI))
-//                regulateRotation(-1 * abs(current_angle - angle_goal));
-//            else
-//                regulateRotation(abs(current_angle - angle_goal));
-//            goRotate();
-
-//            if (rotation_speed == 0)
-//            {
-//                if (distance_from_goal > 0.1)
-//                    regulateSpeed(distance_from_goal);
-//                goTranslate();
-//            }
-//        }
         Point2d current_position = {current_x, current_y};
         Point2d goal_position = {path_points[path_following_index].x, path_points[path_following_index].y};
         if (distance(current_position, goal_position) > GOAL_THRESHOLD)
@@ -350,7 +325,7 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
                 continue;
             }
             else
-//            if (copyOfLaserData.Data[i].scanDistance > 230 || copyOfLaserData.Data[i].scanDistance < 3000)
+            //            if (copyOfLaserData.Data[i].scanDistance > 230 || copyOfLaserData.Data[i].scanDistance < 3000)
             {
                 double scan_distance = copyOfLaserData.Data[i].scanDistance / 1000;
                 int point_y = -(current_y + scan_distance * sin((360 - copyOfLaserData.Data[i].scanAngle) * PI / 180.0 + current_angle)) / 12 * 500 + 500 / 2 - 1;
@@ -693,7 +668,7 @@ void MainWindow::correctMap()
 void MainWindow::on_pushButton_10_clicked()
 {
 
-    Point2d end_point = {103, 92};
+    Point2d end_point = {18, 40};
     map_loader MapLoader;
     char filename[65] = "/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/priestor.txt";
     MapLoader.load_map(filename, map);
@@ -745,13 +720,15 @@ void MainWindow::on_pushButton_10_clicked()
         shortest_file.close();
     }
     std::ofstream path_file("/home/pdvorak/rmr_school/School/RMR/all-lidar-robot/path.txt");
-    for (auto &coordinate : path_points)
+    std::vector<Point2d> path = clearPath();
+    path_points = path;
+    for (auto &coordinate : path)
     {
         path_file << coordinate.x << " " << coordinate.y << "\n";
     }
     path_file.close();
     std::cout << "Done with the flood";
-    follow_created_path = true;
+     follow_created_path = true;
 }
 
 void MainWindow::on_pushButton_11_clicked()
@@ -813,10 +790,10 @@ double MainWindow::evaluateTrajectory(RobotState end_state, Point2d goal_positio
         double obstacle_distance = distance(end_state.position, obstacle.coordinate);
         if (obstacle_distance < OBSTACLE_THRESHOLD)
         {
-            obstacle_penalty *= (obstacle_distance / OBSTACLE_THRESHOLD * 100);
+            obstacle_penalty *= (obstacle_distance / OBSTACLE_THRESHOLD);
         }
     }
-    double orientation_penalty = 1.0f - abs(angleDifference(end_state.theta, atan2(goal_position.y - end_state.position.y, goal_position.x - end_state.position.x))) / M_PI;
+    double orientation_penalty = 1.0f - abs(angleDifference(end_state.theta, atan2(goal_position.y - end_state.position.y, goal_position.x - end_state.position.x))) / 4*M_PI;
     return distance_penalty * obstacle_penalty * orientation_penalty;
 }
 
@@ -845,6 +822,7 @@ RobotState MainWindow::findBestTrajectory(double x, double y, double theta, doub
 void MainWindow::findShortestPath(int start_x, int start_y)
 {
     int counter = 1;
+    int c_new = 1;
     int current_number = path_finding_map[start_x][start_y];
     while (current_number != 2)
     {
@@ -852,7 +830,7 @@ void MainWindow::findShortestPath(int start_x, int start_y)
         {
             for (int j = -1; j <= 1; j++)
             {
-                if(i == 0 && j == 0)
+                if ((i == 0 && j == 0 )|| (i == -1 && j==-1) ||(i == 1 && j==-1) ||(i == -1 && j==1) ||(i == 1 && j==1))
                 {
                     continue;
                 }
@@ -861,10 +839,10 @@ void MainWindow::findShortestPath(int start_x, int start_y)
                     current_number = path_finding_map[start_x + i][start_y + j];
                     shortest_map[start_x + i][start_y + j] = counter;
                     Point2d temp_point;
-                    temp_point.x = (double)((start_x + i) * 4) / 100;
-                    temp_point.y = (double)((start_y + j) * 4) / 100;
+                    temp_point.x = ((double)((start_x + i) * 4) / 100) - 0.4;
+                    temp_point.y = ((double)((start_y + j) * 4) / 100) - 0.4;
                     path_points.push_back(temp_point);
-                    counter++;
+                    c_new = counter++;
                     start_x += i;
                     start_y += j;
                 }
@@ -872,13 +850,46 @@ void MainWindow::findShortestPath(int start_x, int start_y)
                 {
                     current_number = path_finding_map[start_x + i][start_y + j];
                     shortest_map[start_x + i][start_y + j] = counter;
-                    counter++;
+                    c_new = counter++;
                     Point2d temp_point;
-                    temp_point.x = (double)((start_x + i) * 4) / 100;
-                    temp_point.y = (double)((start_y + j) * 4) / 100;
+                    temp_point.x = ((double)((start_x + i) * 4) / 100) - 0.4;
+                    temp_point.y = ((double)((start_y + j) * 4) / 100) - 0.4;
                     path_points.push_back(temp_point);
                 }
+                if(c_new != counter)
+                {
+                    break;
+                }
+            }
+            if(c_new != counter)
+            {
+                counter = c_new;
+                break;
             }
         }
     }
+}
+
+
+std::vector<Point2d> MainWindow::clearPath()
+{
+    double last_element_angle = atan2(path_points.at(0).y - path_points.at(1).y, path_points.at(0).x -path_points.at(1).x);
+    std::vector<Point2d> points;
+    points.push_back({0,0});
+    for(int i = 1 ; i < path_points.size() - 1; ++i)
+    {
+
+        double new_angle = atan2(path_points.at(i).y - path_points.at(i+1).y, path_points.at(i).x - path_points.at(i+1).x);
+            if(last_element_angle == new_angle)
+            {
+            }
+            else
+            {
+                points.push_back(path_points.at(i+1));
+            }
+            last_element_angle = new_angle;
+
+    }
+    points.push_back(path_points.back());
+    return points;
 }
